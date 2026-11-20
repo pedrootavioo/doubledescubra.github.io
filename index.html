@@ -124,6 +124,41 @@ main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
 .card .more{margin-top:auto;font-size:11px;font-weight:600;color:var(--gold2);display:flex;align-items:center;gap:4px}
 .card[data-k]:hover .more{color:var(--gold)}
 .card.match{border-color:var(--hl);box-shadow:0 0 0 1px var(--hl),0 0 18px rgba(255,218,107,.15)}
+.card.flash{animation:flash 1.8s ease-out}
+@keyframes flash{0%,35%{box-shadow:0 0 0 3px var(--hl),0 0 28px rgba(255,218,107,.55);transform:scale(1.02)}}
+/* resultados da busca em todos os dias/horários */
+.sres{background:linear-gradient(180deg,rgba(255,218,107,.09),rgba(255,218,107,.03));border:1px solid rgba(255,218,107,.35);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.sres[hidden]{display:none}
+.sres-h{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;font-size:13px}
+.sres-h b{color:var(--hl)}
+.sres-h .ic{font-size:16px}
+.sres-h button{padding:4px 10px;font-size:12px}
+.sres-body{margin-top:10px;max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--gold2) transparent}
+.sres-row{display:grid;grid-template-columns:118px 1fr;gap:8px;align-items:start}
+.sres-row .dn{font-weight:700;color:var(--gold);font-size:12px;padding-top:7px;white-space:nowrap}
+.sres-row .dn .today{font-size:9px;color:var(--now);margin-left:5px}
+.sres-hits{display:flex;flex-wrap:wrap;gap:6px}
+.sh{display:inline-flex;align-items:center;gap:7px;max-width:100%;padding:5px 10px;border-radius:8px;font-size:12px;text-align:left}
+.sh .t{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:600;white-space:nowrap}
+.sh .r{font-weight:700;white-space:nowrap}
+.sh .w{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.sh.now{border-color:var(--now)}
+.sh.now .t{color:#ffb3a3}
+.sh.past{opacity:.5}
+.sh.past:hover{opacity:.85}
+.sh.sel{background:var(--gold);color:#1a1307;border-color:var(--gold)}
+.sh.sel .t,.sh.sel .w{color:#5a4210}
+.sh.rsp .t{font-weight:500}
+.sres-more{align-self:flex-start;font-size:12px;padding:5px 12px;color:var(--gold)}
+.days button .hits{display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:var(--hl);color:#1a1307;font-size:10px;font-weight:800;line-height:16px;text-align:center}
+@media (max-width:600px){
+  .sres{padding:10px 12px}
+  .sres-row{grid-template-columns:1fr;gap:4px}
+  .sres-row .dn{padding-top:0}
+  .sres-body{overflow-x:hidden}
+  .sh{width:100%;flex-wrap:wrap;row-gap:2px}
+  .sh .w{flex-basis:100%;white-space:normal;max-width:none;word-break:break-word}
+}
 .card .name{font-weight:700;font-size:14px}
 .card .sub{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
 .mobs{display:flex;gap:4px;flex-wrap:wrap;min-height:40px;align-items:flex-end}
@@ -257,6 +292,7 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
 
 <main>
   <div id="err"></div>
+  <section class="sres" id="sres" hidden aria-live="polite"></section>
   <div id="slotSentinel"></div>
   <div class="slotbar" id="slotbar" hidden>
     <button type="button" class="snav" id="sPrev" aria-label="Horários anteriores" title="Horários anteriores">‹</button>
@@ -518,9 +554,62 @@ function mobsHtml(key){
   if(!list || !list.length) return `<div class="mobs"><div class="noimg">⚔</div></div>`;
   return `<div class="mobs">${list.map(n=>`<img loading="lazy" referrerpolicy="no-referrer" src="${gif(n)}" alt="${esc(n)}" title="${esc(n)}" onerror="this.outerHTML='<div class=noimg title=&quot;${esc(n)}&quot;>?</div>'">`).join('')}</div>`;
 }
-function renderDays(){
-  const today = todayTab();
-  $('days').innerHTML = DAY_TABS.map(t=>`<button data-d="${esc(t)}" class="${t===state.day?'on':''}">${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</button>`).join('');
+function renderDays(hits){
+  const today = todayTab(), per = {};
+  (hits||[]).forEach(h=>per[h.t]=(per[h.t]||0)+1);
+  $('days').innerHTML = DAY_TABS.map(t=>`<button data-d="${esc(t)}" class="${t===state.day?'on':''}" ${per[t]?`title="${per[t]} resultado${per[t]>1?'s':''} da busca"`:''}>${esc(t)}${t===today?'<span class="today">HOJE</span>':''}${per[t]?`<span class="hits">${per[t]}</span>`:''}</button>`).join('');
+}
+/* ---------- busca em todos os dias/horários ---------- */
+const SRES_MAX = 40;
+let sresAll = false; // "mostrar todos" no painel de resultados
+function searchAll(q){ // jogador (texto da célula) em qualquer aba/horário
+  const hits = [];
+  if(!q) return hits;
+  for(const t of DAY_TABS){
+    const d = state.data[t]; if(!d || d.error) continue;
+    d.slots.forEach((s,i)=>s.cells.forEach((txt,j)=>{ if(txt && norm(txt).includes(q)) hits.push({t, i, j, s, c:d.cols[j], txt}); }));
+  }
+  return hits;
+}
+function respMatches(q){ // respawns cujo nome bate com a busca (sem repetir entre abas)
+  const seen = new Map();
+  if(q) for(const t of DAY_TABS){ const d=state.data[t]; if(d && !d.error) d.cols.forEach(c=>{ if(!seen.has(c.key) && (c.key.includes(q) || norm(c.grp).includes(q))) seen.set(c.key, c); }); }
+  return [...seen.values()];
+}
+function renderSearch(q, hits){
+  const box = $('sres');
+  if(!q){ box.hidden = true; box.innerHTML = ''; sresAll = false; return; }
+  const resps = respMatches(q), today = todayTab();
+  box.hidden = false;
+  const days = [...new Set(hits.map(h=>h.t))];
+  let head;
+  if(hits.length) head = `<span class="ic" aria-hidden="true">🔎</span><span>“<b>${esc(state.q)}</b>” aparece em <b>${hits.length}</b> horário${hits.length>1?'s':''}${days.length>1?` em <b>${days.length}</b> dias`:''}</span>`;
+  else if(resps.length) head = `<span class="ic" aria-hidden="true">🔎</span><span>Nenhum jogador “<b>${esc(state.q)}</b>”, mas achei respawn${resps.length>1?'s':''} com esse nome</span>`;
+  else head = `<span class="ic" aria-hidden="true">🔎</span><span>Nada com “<b>${esc(state.q)}</b>” em nenhum dia ou horário</span>`;
+  let body = '';
+  if(resps.length) body += `<div class="sres-row"><div class="dn">Respawns</div><div class="sres-hits">${resps.slice(0,24).map(c=>`<button type="button" class="sh rsp" data-k="${esc(c.key)}" title="Ver todos os horários e dias desse respawn"><span class="r">${hl(c.name)}</span><span class="t">${esc(c.grp)} ›</span></button>`).join('')}</div></div>`;
+  const shown = sresAll ? hits : hits.slice(0, SRES_MAX);
+  for(const t of days){
+    const hs = shown.filter(h=>h.t===t); if(!hs.length) continue;
+    body += `<div class="sres-row"><div class="dn">${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</div><div class="sres-hits">${hs.map(h=>{
+      const now = slotIsNow(h.s.label,t), sel = t===state.day && h.i===state.slot && state.view==='slot';
+      const cls = ['sh', now&&'now', slotIsPast(h.s.label,t)&&'past', sel&&'sel'].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" data-d="${esc(t)}" data-s="${h.i}" data-k="${esc(h.c.key)}" title="${esc(t+' · '+slotTxt(h.s.label)+' · '+h.c.name+' · '+h.txt)}"><span class="t">${now?'● ':''}${esc(slotTxt(h.s.label))}</span><span class="r">${esc(h.c.name)}</span><span class="w">${hl(h.txt)}</span></button>`;
+    }).join('')}</div></div>`;
+  }
+  if(hits.length > shown.length) body += `<button type="button" class="sres-more" id="sresMore">Mostrar todos os ${hits.length} resultados</button>`;
+  box.innerHTML = `<div class="sres-h">${head}<span class="spacer"></span><button type="button" id="sresClear" title="Limpar busca">✕ Limpar busca</button></div>${body?`<div class="sres-body">${body}</div>`:''}`;
+}
+function goToHit(t, i, key){ // pula pra aquele dia/horário e destaca o card do respawn
+  state.day=t; state.slot=i; state.userPickedSlot=true; state.view='slot'; state.grp='';
+  render(true);
+  const card = [...document.querySelectorAll('#content .card[data-k]')].find(c=>c.dataset.k===key);
+  if(card){
+    const r = card.getBoundingClientRect(), barH = $('slotbar').offsetHeight + Math.max(hdrH,0);
+    const free = innerHeight - barH - $('credit').offsetHeight; // área visível entre a barra fixa e a barra de doação
+    window.scrollTo({top: Math.max(0, r.top + scrollY - barH - Math.max(0, (free - r.height)/2)), behavior: beh(true)});
+    card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+  }
 }
 /* ---------- barra de horários ---------- */
 const beh = smooth => smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto';
@@ -559,7 +648,8 @@ function updateNowBtn(){ // "Agora": aparece quando não está no horário atual
   if(ti>=0){ const lbl='Voltar para o horário atual ('+slotTxt(td.slots[ti].label)+')'; b.title=lbl; b.setAttribute('aria-label',lbl); }
 }
 function render(smooth){
-  renderDays();
+  const hits = searchAll(norm(state.q));
+  renderDays(hits); renderSearch(norm(state.q), hits);
   document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.view));
   const d = state.data[state.day];
   if(state.view==='slot') $('content').setAttribute('role','tabpanel'); else $('content').removeAttribute('role');
@@ -594,7 +684,7 @@ function render(smooth){
           <div class="more">Ver todos os horários e dias ›</div>
         </div>`).join('') + `</div></section>`;
     }
-    $('content').innerHTML = html || '<div class="empty-state">Nada encontrado nesse horário.</div>';
+    $('content').innerHTML = html || `<div class="empty-state">Nada encontrado nesse horário.${q && hits.length ? '<br>Veja acima os outros dias/horários onde aparece ↑' : ''}</div>`;
   } else {
     $('slotbar').hidden=true;
     let html='';
@@ -741,7 +831,14 @@ $('btnCopy').onclick = async ()=>{
   b.classList.add('ok'); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove('ok'), 2400);
 };
 $('viewSeg').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.view=b.dataset.v; try{localStorage.setItem('dxp-ui',JSON.stringify({view:state.view}))}catch(_){} render(); };
-$('q').oninput = e=>{ state.q=e.target.value.trim(); render(); };
+$('q').oninput = e=>{ state.q=e.target.value.trim(); sresAll=false; render(); };
+// painel de resultados da busca (todos os dias/horários)
+$('sres').onclick = e=>{
+  if(e.target.closest('#sresClear')){ $('q').value=''; state.q=''; render(); $('q').focus(); return; }
+  if(e.target.closest('#sresMore')){ sresAll=true; render(); return; }
+  const b = e.target.closest('.sh'); if(!b) return;
+  if(b.classList.contains('rsp')) openResp(b.dataset.k); else goToHit(b.dataset.d, +b.dataset.s, b.dataset.k);
+};
 $('grp').onchange = e=>{ state.grp=e.target.value; render(); };
 $('onlyBusy').onchange = e=>{ state.onlyBusy=e.target.checked; render(); };
 $('btnRefresh').onclick = refresh;
