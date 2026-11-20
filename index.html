@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Double XP — Respawns da Radioactive em Descubra</title>
 <link rel="icon" href="https://static.tibia.com/images/guildlogos/Radioactive.gif">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@ button.on{background:var(--gold);color:#1a1307;border-color:var(--gold);font-wei
 /* busca em destaque */
 .search{position:relative;flex:1 1 320px;max-width:480px;display:flex;align-items:center}
 .search svg{position:absolute;left:13px;width:18px;height:18px;color:var(--gold);pointer-events:none}
-.search input{width:100%;min-width:0;background:rgba(224,181,82,.07);border:1px solid var(--gold2);color:var(--text);border-radius:10px;padding:10px 46px 10px 40px;font:inherit;font-size:14px;transition:border-color .15s,box-shadow .15s,background .15s}
+.search input{width:100%;min-width:0;background:rgba(224,181,82,.07);border:1px solid var(--gold2);color:var(--text);border-radius:10px;padding:10px 64px 10px 40px;font:inherit;font-size:14px;transition:border-color .15s,box-shadow .15s,background .15s}
 .search input::placeholder{color:#bfae8a}
 .search input:hover{border-color:var(--gold)}
 .search input:focus{outline:none;border-color:var(--gold);background:var(--card);box-shadow:0 0 0 3px rgba(224,181,82,.22)}
@@ -97,20 +97,52 @@ main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
 .slots .chip.hit{border-color:var(--hl)}
 .slots .chip.hit::before{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--hl);box-shadow:0 0 6px var(--hl)}
 .slots .chip:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
-@media (max-width:600px){
-  .slotbar{margin:0 -20px 12px;padding:6px 12px}
+/* textos alternativos: .dk só no desktop, .mo só no celular / tela baixa */
+.mo{display:none}
+.tools .seg{order:-1}
+.filt{display:contents} /* no desktop os filtros ficam na mesma linha da busca */
+.chk{color:var(--muted);font-size:12px;display:flex;gap:6px;align-items:center}
+/* celular (≤600px) e telas baixas/deitadas (≤500px de altura) */
+@media (max-width:600px),(max-height:500px){
+  :root{--gl:max(12px,env(safe-area-inset-left));--gr:max(12px,env(safe-area-inset-right))}
+  .mo{display:inline}
+  .dk{display:none}
+  .slotbar{margin:0 calc(-1*var(--gr)) 12px calc(-1*var(--gl));padding:6px var(--gr) 6px var(--gl)}
   .snav{display:none}
   .slots{--fw:20px;scroll-snap-type:x proximity}
   .slots .chip{scroll-snap-align:center;min-width:84px;height:48px}
   .agora{width:44px;height:48px;padding:0}
   .agora .lb{display:none}
-  header{position:static} /* no celular o header não gruda: sobra tela pros cards; só a barra de horários fica fixa */
-  .hero{padding:22px 16px 18px}
-  .hero .guild img{width:60px;height:60px}
-  .hero .kick{letter-spacing:2px}
+  main{padding:14px var(--gr) 24px var(--gl)}
+  footer{padding:16px var(--gr) 16px var(--gl)}
+  /* hero compacto: logo de 40px ao lado do título */
+  .hero{display:grid;grid-template-columns:auto auto;grid-template-areas:"kick kick" "logo h1" "sub sub";justify-content:center;align-items:center;column-gap:10px;padding:10px var(--gr) 10px var(--gl)}
+  .hero .kick{grid-area:kick;font-size:10px;letter-spacing:2px}
+  .hero .guild{grid-area:logo;margin:0}
+  .hero .guild::before{inset:-6px}
+  .hero .guild img{width:40px;height:40px}
+  .hero h1{grid-area:h1;margin:6px 0 4px;font-size:32px;gap:10px}
+  .hero .sub{grid-area:sub;margin-top:0;font-size:16px;white-space:nowrap}
+  .hero .evt{display:none}
   .hero::before,.hero::after{display:none}
-  .search{flex-basis:100%;max-width:none}
+  /* header: busca primeiro, dias em 3 colunas, ações viram ícones */
+  header{position:static;display:flex;flex-direction:column;gap:8px;padding:10px var(--gr) 10px var(--gl)} /* no celular o header não gruda: sobra tela pros cards; só a barra de horários fica fixa */
+  header .tools{display:contents}
+  .search{order:1;flex:none;width:100%;max-width:none}
+  .search input{min-height:44px;font-size:16px;padding-right:36px} /* sem a dica "Ctrl K" no celular */
   .search kbd{display:none}
+  .days{order:2;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0;width:100%}
+  .days button{position:relative;min-height:44px;padding:4px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;white-space:nowrap}
+  .days button .today{margin:0;font-size:9px}
+  .days button .hits{position:absolute;top:-6px;right:-4px;margin:0}
+  .filt{order:3;display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
+  .filt .seg{flex:1 1 100%}
+  .filt .seg button{flex:1;min-height:40px}
+  .filt select{flex:1 1 140px;min-width:0;min-height:44px}
+  .chk{min-height:44px;padding:0 6px;font-size:13px;cursor:pointer}
+  .chk input{width:20px;height:20px;margin:0}
+  .top{order:4;gap:8px;margin:0;width:100%}
+  .top .ib{width:44px;height:44px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1}
 }
 .group{margin-bottom:26px}
 .group h2{font-family:Cinzel,serif;color:var(--gold);font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
@@ -181,11 +213,28 @@ mark{background:var(--hl);color:#1a1307;border-radius:3px;padding:0 2px}
 .modal .box{background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:760px;max-height:85vh;overflow:auto;padding:20px 24px}
 .modal h3{font-family:Cinzel,serif;color:var(--gold);margin-top:0}
 .modal p{margin:6px 0;line-height:1.5}
-body.lock{overflow:hidden}
-.modal .box{scrollbar-width:thin;scrollbar-color:var(--gold2) transparent}
-.modal .box::-webkit-scrollbar{width:8px}
-.modal .box::-webkit-scrollbar-thumb{background:var(--gold2);border-radius:8px}
-.modal .box::-webkit-scrollbar-track{background:transparent}
+html.lock,body.lock{overflow:hidden}
+.modal .box,.sb-body,.rp-list{scrollbar-width:thin;scrollbar-color:var(--gold2) transparent}
+.modal .box::-webkit-scrollbar,.sb-body::-webkit-scrollbar,.rp-list::-webkit-scrollbar{width:8px}
+.modal .box::-webkit-scrollbar-thumb,.sb-body::-webkit-scrollbar-thumb,.rp-list::-webkit-scrollbar-thumb{background:var(--gold2);border-radius:8px}
+.modal .box::-webkit-scrollbar-track,.sb-body::-webkit-scrollbar-track,.rp-list::-webkit-scrollbar-track{background:transparent}
+/* regras / filtros: topo fixo com ×, corpo rola, rodapé com botões */
+#rules .rbox,#filt .rbox{overflow:hidden}
+#rules .rbox{width:min(760px,100%)}
+#filt .rbox{width:min(460px,100%)}
+.sb-title{margin:0 !important;font-size:20px;padding-right:44px}
+.sb-body{flex:1 1 auto;min-height:0;overflow:auto;padding:12px 24px}
+.sb-foot{flex:none;display:flex;gap:8px;justify-content:flex-end;padding:12px 24px;border-top:1px solid var(--line)}
+.ft-row{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.ft-l{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.ft-row .seg{display:flex}
+.ft-row .seg button{flex:1;min-height:44px;padding:4px 6px}
+.ft-row .seg .today{display:block;font-size:9px;color:var(--now);font-weight:700}
+.ft-row .seg button.on .today{color:#5a1408}
+.ft-row select{min-height:44px;width:100%}
+.ft-chk{min-height:44px;font-size:14px;color:var(--text)}
+/* mini-barra do celular (dia · busca · filtros) */
+.mbar{display:none}
 /* modal do respawn: todos os horários/dias de um respawn */
 .rbox{position:relative;width:min(720px,100%);padding:0 !important;display:flex;flex-direction:column}
 .rp-top{position:sticky;top:0;z-index:2;background:var(--card);border-bottom:1px solid var(--line);padding:18px 20px 12px;border-radius:14px 14px 0 0}
@@ -219,16 +268,56 @@ body.lock{overflow:hidden}
 .rr.past{opacity:.5}
 .rr.sel{border-color:var(--gold);background:rgba(224,181,82,.1)}
 .rr.match{background:rgba(255,218,107,.14)}
-@media (max-width:600px){
-  #resp{padding:0;align-items:flex-end}
-  .rbox{max-height:92vh !important;border-radius:16px 16px 0 0 !important}
-  .rp-top{padding:16px 14px 10px}
-  .rp-head .mobs{max-width:110px}
-  .rp-head .mobs img,.rp-head .mobs .noimg{width:36px;height:36px}
-  .rp-list{padding:10px 12px 16px}
-  .rr{grid-template-columns:104px 1fr;padding:9px 10px;font-size:12.5px}
+/* celular / tela baixa: modais viram "bottom sheet"; o topo (com ×) nunca rola e nunca sai da tela */
+@media (max-width:600px),(max-height:500px){
+  .modal{overscroll-behavior:contain}
+  .modal.sheet{padding:0;align-items:stretch}
+  .sheet .rbox{margin-top:auto;width:100%;max-width:none;max-height:calc(var(--app-h,100vh) - 56px);max-height:calc(100dvh - 56px);border-radius:16px 16px 0 0;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s}
+  .sheet .rp-top{position:relative;flex:none;padding:8px 14px 10px;border-radius:16px 16px 0 0}
+  .sheet .rp-top::before{content:"";display:block;width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 8px}
+  .rp-x{width:44px;height:44px;top:8px;right:8px}
+  .rp-head{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:center;padding-right:48px}
+  .rp-head > div:last-child{display:contents} /* resumo numa linha só, embaixo dos monstros */
+  #rpMobs{grid-row:1/3}
+  .rp-head .sub,.rp-head h3{grid-column:2}
+  .rp-sum{grid-column:1/-1;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rp-head .mobs{max-width:none}
+  #rpMobs .mobs{flex-wrap:nowrap;min-height:0}
+  .rp-head .mobs img,.rp-head .mobs .noimg{width:32px;height:32px}
+  .rp-head h3{font-size:18px;margin:0 0 2px}
+  .rp-days{margin-top:10px}
+  .rp-days button{min-height:44px;justify-content:center}
+  .rp-list,.sb-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+  .rp-list{padding:10px 12px calc(16px + env(safe-area-inset-bottom))}
+  .sb-title{padding:6px 48px 6px 0}
+  .sb-body{padding:12px 14px}
+  .sb-foot{padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+  .sb-foot button{flex:1;min-height:44px}
+  .rr{grid-template-columns:104px 1fr;padding:9px 10px;font-size:12.5px;min-height:44px}
   .rr .t{white-space:nowrap}
   .rr .go{display:none}
+}
+@media (max-height:500px){ /* deitado: menos fundo acima do sheet, mais lista */
+  .sheet .rbox{max-height:calc(var(--app-h,100vh) - 24px);max-height:calc(100dvh - 24px)}
+  .rp-days{margin-top:6px}
+}
+@media (max-width:600px){
+  .mbar{position:fixed;top:0;left:0;right:0;z-index:25;display:flex;gap:6px;align-items:center;height:calc(44px + env(safe-area-inset-top));padding:env(safe-area-inset-top) var(--gr) 0 var(--gl);background:rgba(15,13,10,.96);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid var(--line);box-shadow:0 4px 10px rgba(0,0,0,.3);transform:translateY(-100%);visibility:hidden;transition:transform .2s,visibility 0s linear .2s}
+  .mbar.show{transform:none;visibility:visible;transition:transform .2s,visibility 0s}
+  .mbar button,.mbar select,.mbar input{position:relative;height:36px;padding:0 10px;font-size:13px}
+  .mbar button::after{content:"";position:absolute;inset:-4px 0} /* área de toque de 44px */
+  .mbar select{flex:none;max-width:48%;background:var(--card2)}
+  .mb-s{flex:1;min-width:0;display:flex;align-items:center;gap:6px;color:var(--muted);text-align:left}
+  .mb-s svg,.mb-sch svg{width:16px;height:16px;flex:none;color:var(--gold)}
+  .mb-f{flex:none;display:flex;align-items:center;gap:6px}
+  .mb-f .n{min-width:18px;padding:0 5px;border-radius:9px;background:var(--hl);color:#1a1307;font-size:11px;font-weight:800;line-height:18px;text-align:center}
+  .mb-f .n[hidden]{display:none}
+  .mb-sch{flex:1;min-width:0;display:flex;align-items:center;gap:6px}
+  .mb-sch input{flex:1;min-width:0;background:rgba(224,181,82,.07);border:1px solid var(--gold2);color:var(--text);border-radius:8px;font:inherit;font-size:16px;padding:0 10px}
+  .mb-sch input:focus{outline:none;border-color:var(--gold);background:var(--card)}
+  .mbar.srch .mb-main,.mbar:not(.srch) .mb-sch{display:none}
+  .mb-main{display:contents}
+  .slotbar{top:calc(var(--hdr-h,0px) + var(--mb-h,0px));transition:top .2s,box-shadow .2s}
 }
 .err-box{background:#3a1710;border:1px solid var(--now);padding:12px;border-radius:10px;margin-bottom:14px}
 footer{color:var(--muted);font-size:11px;text-align:center;padding:20px}
@@ -262,12 +351,18 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
 @keyframes pop{40%{transform:scale(1.6)}}
 @keyframes rise{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-38px) scale(1.3)}}
 @media (prefers-reduced-motion:reduce){.credit .like.pop .hrt,.credit .like .burst{animation:none}.credit .like .burst{display:none}}
-@media (max-width:600px){
-  .credit{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;padding:8px 12px;font-size:12.5px;text-align:left;line-height:1.35}
-  .credit .coin{font-size:20px}
-  .credit .cta{padding:8px 12px;font-size:12.5px}
-  .credit .cta .xs{display:none}
-  .credit .by{grid-column:1/-1;text-align:center;font-size:11px}
+.credit{padding-bottom:calc(11px + env(safe-area-inset-bottom))}
+/* celular / tela baixa: barra numa linha só (o "Feito com ❤️" vai pro rodapé) */
+@media (max-width:600px),(max-height:500px){
+  .credit{display:grid;grid-template-columns:auto 1fr auto auto;gap:0 8px;padding:6px var(--gr) calc(6px + env(safe-area-inset-bottom)) var(--gl);font-size:12.5px;text-align:left;line-height:1.3;transition:transform .2s,visibility 0s}
+  .credit .coin{font-size:22px}
+  .credit .cta{min-height:40px;padding:0 14px;font-size:12.5px}
+  .credit .cta .xs,.credit .cta .ci{display:none}
+  .credit .by{display:contents}
+  .credit .byt{display:none}
+  .credit .like{min-height:40px;margin:0;padding:0 11px;font-size:13px}
+  .credit a,footer a{padding:6px 0} /* área de toque maior sem mexer no layout */
+  body.kb .credit{transform:translateY(110%);visibility:hidden;transition:transform .2s,visibility 0s linear .2s} /* teclado aberto: some a barra */
 }
 </style>
 </head>
@@ -283,25 +378,40 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
   <div class="top">
     <div class="status"><span class="dot load" id="dot"></span><span id="upd">—</span></div>
     <div class="spacer"></div>
-    <button id="btnRefresh" title="Recarregar agora">↻ Atualizar</button>
-    <button id="btnRules">📜 Regras</button>
-    <a class="btn" id="lnkSheet" target="_blank" rel="noopener" style="text-decoration:none">Abrir planilha</a>
+    <button id="btnRefresh" class="ib" title="Recarregar agora" aria-label="Atualizar"><span aria-hidden="true">↻</span><span class="dk"> Atualizar</span></button>
+    <button id="btnRules" class="ib" title="Regras" aria-label="Regras"><span aria-hidden="true">📜</span><span class="dk"> Regras</span></button>
+    <a class="btn ib" id="lnkSheet" target="_blank" rel="noopener" style="text-decoration:none" title="Abrir planilha" aria-label="Abrir planilha"><span class="mo" aria-hidden="true">📊</span><span class="dk">Abrir planilha</span></a>
   </div>
   <div class="days" id="days"></div>
   <div class="tools">
-    <div class="seg" id="viewSeg">
-      <button data-v="slot" class="on">Por horário</button>
-      <button data-v="resp">Por respawn</button>
-    </div>
     <label class="search" title="Digite o nome do seu char (ou de um respawn) pra achar onde ele está">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
       <input type="search" id="q" placeholder="Busque seu char ou um respawn…" aria-label="Buscar jogador ou respawn" autocomplete="off">
-      <kbd aria-hidden="true">/</kbd>
+      <kbd aria-hidden="true" id="qKbd">Ctrl K</kbd>
     </label>
-    <select id="grp"><option value="">Todas as hunts</option></select>
-    <label style="color:var(--muted);font-size:12px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="onlyBusy"> só ocupados</label>
+    <div class="filt">
+      <div class="seg" id="viewSeg">
+        <button data-v="slot" class="on">Por horário</button>
+        <button data-v="resp">Por respawn</button>
+      </div>
+      <select id="grp" aria-label="Hunt"><option value="">Todas as hunts</option></select>
+      <label class="chk"><input type="checkbox" id="onlyBusy"> só ocupados</label>
+    </div>
   </div>
 </header>
+<!-- mini-barra do celular: aparece ao rolar pra cima depois que o header sai da tela -->
+<div class="mbar" id="mbar">
+  <div class="mb-main">
+    <select id="mbDay" aria-label="Dia"></select>
+    <button type="button" class="mb-s" id="mbSearch" aria-label="Buscar jogador ou respawn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>Buscar</button>
+    <button type="button" class="mb-f" id="mbFilt" aria-haspopup="dialog">Filtros <span class="n" id="mbN" hidden></span></button>
+  </div>
+  <div class="mb-sch">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+    <input type="search" id="mq" placeholder="Seu char ou um respawn…" aria-label="Buscar jogador ou respawn" autocomplete="off" enterkeyhint="search">
+    <button type="button" id="mbCancel">Cancelar</button>
+  </div>
+</div>
 
 <main>
   <div id="err"></div>
@@ -316,11 +426,32 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
   <div id="content" role="tabpanel"><div class="empty-state">Carregando…</div></div>
 </main>
 
-<div class="modal" id="rules"><div class="box"><h3>Regras</h3><div id="rulesBody">—</div><p style="margin-top:16px"><button onclick="closeRules()">Fechar</button></p></div></div>
+<div class="modal sheet" id="rules" role="dialog" aria-modal="true" aria-labelledby="rulesTitle"><div class="box rbox">
+  <div class="rp-top">
+    <button type="button" class="rp-x" id="rulesClose" aria-label="Fechar" title="Fechar (Esc)">×</button>
+    <h3 class="sb-title" id="rulesTitle">Regras</h3>
+  </div>
+  <div class="sb-body" id="rulesBody">—</div>
+  <div class="sb-foot"><button type="button" id="rulesOk">Entendi</button></div>
+</div></div>
 
-<footer>Dados lidos ao vivo da planilha do Google · atualiza a cada <span id="ivl"></span> min · gifs: <a href="https://tibia.fandom.com" target="_blank" rel="noopener">TibiaWiki</a></footer>
+<div class="modal sheet" id="filt" role="dialog" aria-modal="true" aria-labelledby="ftTitle"><div class="box rbox">
+  <div class="rp-top">
+    <button type="button" class="rp-x" id="ftClose" aria-label="Fechar" title="Fechar (Esc)">×</button>
+    <h3 class="sb-title" id="ftTitle">Filtros</h3>
+  </div>
+  <div class="sb-body">
+    <div class="ft-row"><div class="ft-l" id="ftDl">Dia</div><div class="seg" id="ftDays" role="group" aria-labelledby="ftDl"></div></div>
+    <div class="ft-row"><div class="ft-l" id="ftVl">Visualização</div><div class="seg" id="ftView" role="group" aria-labelledby="ftVl"><button type="button" data-v="slot">Por horário</button><button type="button" data-v="resp">Por respawn</button></div></div>
+    <div class="ft-row"><label class="ft-l" for="ftGrp">Hunt</label><select id="ftGrp"></select></div>
+    <label class="chk ft-chk"><input type="checkbox" id="ftBusy"> Só ocupados</label>
+  </div>
+  <div class="sb-foot"><button type="button" id="ftClear">Limpar filtros</button><button type="button" class="on" id="ftOk">Ver resultados</button></div>
+</div></div>
 
-<div class="modal" id="resp" role="dialog" aria-modal="true" aria-labelledby="rpName"><div class="box rbox" id="rpBox">
+<footer>Dados lidos ao vivo da planilha do Google · atualiza a cada <span id="ivl"></span> min · gifs: <a href="https://tibia.fandom.com" target="_blank" rel="noopener">TibiaWiki</a><span class="mo"> · Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></span></footer>
+
+<div class="modal sheet" id="resp" role="dialog" aria-modal="true" aria-labelledby="rpName"><div class="box rbox" id="rpBox">
   <div class="rp-top">
     <button type="button" class="rp-x" id="rpClose" aria-label="Fechar" title="Fechar (Esc)">×</button>
     <div class="rp-head"><div id="rpMobs"></div><div><div class="sub" id="rpGrp"></div><h3 id="rpName"></h3><div class="rp-sum" id="rpSum"></div></div></div>
@@ -331,9 +462,9 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
 
 <div class="credit" id="credit">
   <span class="coin" aria-hidden="true">🪙</span>
-  <span class="msg">Curtiu? <b>Joga uns Tibia Coins pro <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></b> e ajuda a criar outras funcionalidades!</span>
-  <button type="button" class="cta" id="btnCopy" title="Copia o nome do char pra você transferir os TC"><span class="l1">🪙 Copiar nome<span class="xs"> pra doar</span></span><span class="l2">✓ Copiado!</span></button>
-  <span class="by">Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a><button type="button" class="like" id="btnLike" hidden aria-pressed="false" title="Curtir o site"><span class="hrt" aria-hidden="true">♥</span><span id="likeN">…</span></button></span>
+  <span class="msg"><span class="dk">Curtiu? <b>Joga uns Tibia Coins pro <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></b> e ajuda a criar outras funcionalidades!</span><span class="mo">Curtiu? <b>Manda uns TC pro <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></b></span></span>
+  <button type="button" class="cta" id="btnCopy" title="Copia o nome do char pra você transferir os TC"><span class="l1"><span class="ci">🪙 </span>Copiar nome<span class="xs"> pra doar</span></span><span class="l2">✓ Copiado!</span></button>
+  <span class="by"><span class="byt">Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></span><button type="button" class="like" id="btnLike" hidden aria-pressed="false" title="Curtir o site"><span class="hrt" aria-hidden="true">♥</span><span id="likeN">…</span></button></span>
 </div>
 
 <script>
@@ -569,10 +700,16 @@ function mobsHtml(key){
   if(!list || !list.length) return `<div class="mobs"><div class="noimg">⚔</div></div>`;
   return `<div class="mobs">${list.map(n=>`<img loading="lazy" referrerpolicy="no-referrer" src="${gif(n)}" alt="${esc(n)}" title="${esc(n)}" onerror="this.outerHTML='<div class=noimg title=&quot;${esc(n)}&quot;>?</div>'">`).join('')}</div>`;
 }
+const shortDay = t => t.slice(0,3)+' '+tabDay(t); // "Sexta (20)" → "Sex 20"
+const dayLbl = t => `<span class="dk">${esc(t)}</span><span class="mo">${esc(shortDay(t))}</span>`;
+const setHTML = (el, h) => { if(el._h!==h){ el.innerHTML=h; el._h=h; } }; // só reescreve quando muda
+const setText = (el, t) => { if(el.textContent!==t) el.textContent=t; };
 function renderDays(hits){
   const today = todayTab(), per = {};
   (hits||[]).forEach(h=>per[h.t]=(per[h.t]||0)+1);
-  $('days').innerHTML = DAY_TABS.map(t=>`<button data-d="${esc(t)}" class="${t===state.day?'on':''}" ${per[t]?`title="${per[t]} resultado${per[t]>1?'s':''} da busca"`:''}>${esc(t)}${t===today?'<span class="today">HOJE</span>':''}${per[t]?`<span class="hits">${per[t]}</span>`:''}</button>`).join('');
+  $('days').innerHTML = DAY_TABS.map(t=>`<button data-d="${esc(t)}" class="${t===state.day?'on':''}" ${per[t]?`title="${per[t]} resultado${per[t]>1?'s':''} da busca"`:''}>${dayLbl(t)}${t===today?'<span class="today">HOJE</span>':''}${per[t]?`<span class="hits">${per[t]}</span>`:''}</button>`).join('');
+  setHTML($('mbDay'), DAY_TABS.map(t=>`<option value="${esc(t)}"${t===state.day?' selected':''}>${esc(shortDay(t))}${t===today?' · hoje':''}${per[t]?` (${per[t]})`:''}</option>`).join(''));
+  if($('mbDay').value!==state.day) $('mbDay').value = state.day;
 }
 /* ---------- busca em todos os dias/horários ---------- */
 const SRES_MAX = 40;
@@ -620,7 +757,7 @@ function goToHit(t, i, key){ // pula pra aquele dia/horário e destaca o card do
   render(true);
   const card = [...document.querySelectorAll('#content .card[data-k]')].find(c=>c.dataset.k===key);
   if(card){
-    const r = card.getBoundingClientRect(), barH = $('slotbar').offsetHeight + Math.max(hdrH,0);
+    const r = card.getBoundingClientRect(), barH = $('slotbar').offsetHeight + Math.max(hdrH,0) + mbH;
     const free = innerHeight - barH - $('credit').offsetHeight; // área visível entre a barra fixa e a barra de doação
     window.scrollTo({top: Math.max(0, r.top + scrollY - barH - Math.max(0, (free - r.height)/2)), behavior: beh(true)});
     card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
@@ -663,8 +800,10 @@ function updateNowBtn(){ // "Agora": aparece quando não está no horário atual
   b.hidden = !(ti>=0 && (state.day!==tt || state.slot!==ti));
   if(ti>=0){ const lbl='Voltar para o horário atual ('+slotTxt(td.slots[ti].label)+')'; b.title=lbl; b.setAttribute('aria-label',lbl); }
 }
-function render(smooth){
+function render(smooth){ renderMain(smooth); renderResp(); renderFilt(); syncMbar(); }
+function renderMain(smooth){
   const hits = searchAll(norm(state.q));
+  $('onlyBusy').checked = state.onlyBusy;
   renderDays(hits); renderSearch(norm(state.q), hits);
   document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.view));
   const d = state.data[state.day];
@@ -725,50 +864,104 @@ function render(smooth){
     }
     $('content').innerHTML = html || '<div class="empty-state">Nada encontrado.</div>';
   }
-  renderResp();
 }
 
 /* ---------- modal do respawn (todos os horários/dias) ---------- */
 const cardAttrs = c => `data-k="${esc(c.key)}" role="button" tabindex="0" aria-haspopup="dialog" aria-label="${esc(c.name)}: ver todos os horários e dias"`;
 function respCol(tab, key){ const d=state.data[tab]; if(!d||d.error) return null; const j=d.cols.findIndex(c=>c.key===key); return j<0 ? null : {d, j, c:d.cols[j]}; }
+let respTouch = false, respPend = 0; // dedo na tela do modal: não reconstrói (cancelaria a rolagem por toque no iOS)
 function renderResp(scrollTo){
   const r = state.resp; if(!r) return;
+  if(respTouch && !scrollTo){ respPend = 1; return; }
   const all = DAY_TABS.map(t=>[t,respCol(t,r.key)]).filter(x=>x[1]);
-  if(!all.length){ closeResp(); return; }
+  if(!all.length){ closeModal('resp'); return; }
   if(!respCol(r.day,r.key)) r.day = all[0][0];
   const x = respCol(r.day,r.key), today = todayTab(), q = norm(state.q);
-  $('rpMobs').innerHTML = mobsHtml(r.key);
-  $('rpGrp').textContent = x.c.grp; $('rpName').textContent = x.c.name;
+  setHTML($('rpMobs'), mobsHtml(r.key));
+  setText($('rpGrp'), x.c.grp); setText($('rpName'), x.c.name);
   const usedAll = all.reduce((n,[,y])=>n+y.d.slots.filter(s=>s.cells[y.j]).length,0), freeDay = x.d.slots.filter(s=>!s.cells[x.j]).length;
-  $('rpSum').innerHTML = `<b>${freeDay}</b> horário${freeDay===1?'':'s'} livre${freeDay===1?'':'s'} em ${esc(r.day)} · <b>${usedAll}</b> reservas no evento`;
-  $('rpDays').innerHTML = DAY_TABS.map(t=>{
-    const y = respCol(t,r.key); if(!y) return `<button type="button" disabled title="Sem esse respawn na aba">${esc(t)}<span class="c">—</span></button>`;
+  setHTML($('rpSum'), `<span class="dk"><b>${freeDay}</b> horário${freeDay===1?'':'s'} livre${freeDay===1?'':'s'} em ${esc(r.day)} · <b>${usedAll}</b> reservas no evento</span><span class="mo"><b>${freeDay}</b> livre${freeDay===1?'':'s'} em ${esc(shortDay(r.day))} · <b>${usedAll}</b> reservas no evento</span>`);
+  setHTML($('rpDays'), DAY_TABS.map(t=>{
+    const y = respCol(t,r.key); if(!y) return `<button type="button" disabled title="Sem esse respawn na aba">${dayLbl(t)}<span class="c">—</span></button>`;
     const used = y.d.slots.filter(s=>s.cells[y.j]).length, tot = y.d.slots.length, on = t===r.day;
-    return `<button type="button" role="tab" aria-selected="${on}" class="${on?'on':''}" data-d="${esc(t)}" style="--p:${tot?Math.round(used/tot*100):0}%" title="${used} de ${tot} horários reservados"><span>${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</span><span class="c">${used?reservas(used):'livre'}</span></button>`;
-  }).join('');
-  $('rpList').innerHTML = x.d.slots.map((s,i)=>{
+    return `<button type="button" role="tab" aria-selected="${on}" class="${on?'on':''}" data-d="${esc(t)}" style="--p:${tot?Math.round(used/tot*100):0}%" title="${used} de ${tot} horários reservados"><span>${dayLbl(t)}${t===today?'<span class="today">HOJE</span>':''}</span><span class="c">${used?reservas(used):'livre'}</span></button>`;
+  }).join(''));
+  setHTML($('rpList'), x.d.slots.map((s,i)=>{
     const txt = s.cells[x.j], now = slotIsNow(s.label,r.day), sel = r.day===state.day && i===state.slot && state.view==='slot';
     const cls = ['rr', now&&'now', slotIsPast(s.label,r.day)&&'past', sel&&'sel', q&&txt&&norm(txt).includes(q)&&'match'].filter(Boolean).join(' ');
     return `<button type="button" class="${cls}" data-s="${i}" title="Ver este horário na grade"><span class="t">${now?'● ':''}${esc(slotTxt(s.label))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span><span class="go">ver na grade ›</span></button>`;
-  }).join('');
+  }).join(''));
   if(scrollTo){ // centraliza o horário atual (ou o selecionado / o mais próximo) na lista
-    const box = $('rpBox'), row = $('rpList').querySelector('.rr.now') || $('rpList').querySelector('.rr.sel') || $('rpList').children[nearestSlot(x.d)];
-    const topH = box.querySelector('.rp-top').offsetHeight; // cabeçalho sticky cobre o topo da caixa
-    box.scrollTop = row ? Math.max(0, row.offsetTop + row.offsetHeight/2 - (topH + box.clientHeight)/2) : 0;
+    const box = $('rpBox'), list = $('rpList'), row = list.querySelector('.rr.now') || list.querySelector('.rr.sel') || list.children[nearestSlot(x.d)];
+    const inList = /auto|scroll/.test(getComputedStyle(list).overflowY); // celular: a lista rola; desktop: a caixa rola (topo sticky)
+    const sc = inList ? list : box, topH = inList ? 0 : box.querySelector('.rp-top').offsetHeight;
+    box.scrollTop = 0; list.scrollTop = 0;
+    if(row) sc.scrollTop = Math.max(0, row.offsetTop - (inList ? list.offsetTop : 0) + row.offsetHeight/2 - (topH + sc.clientHeight)/2);
   }
 }
-let respOpener = null;
 function openResp(key){
-  respOpener = document.activeElement;
   state.resp = {key, day: state.day};
-  $('resp').classList.add('open'); document.body.classList.add('lock');
-  renderResp(true); $('rpClose').focus({preventScroll:true});
+  showModal('resp'); renderResp(true); $('rpClose').focus({preventScroll:true});
 }
-function closeResp(){
-  if(!state.resp) return; state.resp = null;
-  $('resp').classList.remove('open'); document.body.classList.remove('lock');
-  if(respOpener && document.contains(respOpener)) respOpener.focus({preventScroll:true});
+const closeResp = ()=>closeModal('resp');
+
+/* ---------- modais: histórico (voltar do celular fecha), trava de rolagem, foco ---------- */
+const openModals = [], modalOpener = {};
+let popSkip = 0;
+try{ history.scrollRestoration = 'manual'; }catch(_){}
+if(history.state && history.state.modal) history.replaceState(null,''); // recarregou com um modal "aberto" no histórico
+const setLock = on => { document.documentElement.classList.toggle('lock',on); document.body.classList.toggle('lock',on); };
+function showModal(id){
+  if(openModals.includes(id)) return;
+  modalOpener[id] = document.activeElement;
+  $(id).classList.add('open'); openModals.push(id); setLock(true);
+  try{ history.pushState({modal:id},''); }catch(_){}
 }
+function hideModal(id){ // fecha de fato, sem mexer no histórico
+  const i = openModals.indexOf(id); if(i<0) return;
+  openModals.splice(i,1); $(id).classList.remove('open'); setLock(openModals.length>0);
+  const b = $(id).querySelector('.rbox'); b.style.transform = '';
+  if(id==='resp'){ state.resp = null; respTouch = false; respPend = 0; }
+  const o = modalOpener[id]; modalOpener[id] = null;
+  if(o && o.focus && document.contains(o)) o.focus({preventScroll:true});
+}
+function closeModal(id){ // ×, fundo, Esc, "Entendi", arrastar: fecha e consome a entrada do histórico
+  if(!openModals.includes(id)) return;
+  const st = history.state;
+  hideModal(id);
+  if(st && st.modal===id){ popSkip++; history.back(); }
+}
+addEventListener('popstate', e=>{
+  if(popSkip){ popSkip--; return; } // volta disparada pelo próprio closeModal
+  const cur = e.state && e.state.modal;
+  openModals.slice().forEach(id=>{ if(id!==cur) hideModal(id); }); // botão voltar fecha o modal
+  if(cur && !openModals.includes(cur)) history.replaceState(null,''); // "avançar" pra um modal já fechado: ignora
+});
+// arrastar o topo do sheet pra baixo fecha (nunca a partir da lista)
+const MQ_SHEET = matchMedia('(max-width:600px),(max-height:500px)');
+function sheetSwipe(id){
+  const box = $(id).querySelector('.rbox'), top = box.querySelector('.rp-top');
+  let y0 = 0, dy = 0, v = 0, last = null, on = false;
+  top.addEventListener('touchstart', e=>{
+    if(!MQ_SHEET.matches || e.touches.length!==1 || e.target.closest('button,a,input,select,.rp-days')) return;
+    on = true; dy = 0; v = 0; y0 = e.touches[0].clientY; last = {y:y0, t:e.timeStamp}; box.style.transition = 'none';
+  }, {passive:true});
+  top.addEventListener('touchmove', e=>{
+    if(!on) return; const y = e.touches[0].clientY, dt = e.timeStamp-last.t;
+    if(dt>0) v = (y-last.y)/dt; last = {y, t:e.timeStamp};
+    dy = Math.max(0, y-y0); box.style.transform = dy ? `translateY(${dy}px)` : '';
+  }, {passive:true});
+  const end = e=>{
+    if(!on) return; on = false; box.style.transition = '';
+    if(e.type==='touchend' && (dy>80 || (dy>24 && v>0.5))) closeModal(id); // passou de 80px ou "peteleco" rápido
+    else box.style.transform = ''; // volta pro lugar (com transição)
+  };
+  top.addEventListener('touchend', end); top.addEventListener('touchcancel', end);
+}
+['resp','rules','filt'].forEach(sheetSwipe);
+// altura visível real (fallback pra quem não tem dvh)
+const setAppH = ()=>document.documentElement.style.setProperty('--app-h', innerHeight+'px');
+setAppH(); addEventListener('resize', setAppH); if(window.visualViewport) visualViewport.addEventListener('resize', setAppH);
 
 /* ---------- eventos ---------- */
 $('days').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.day=b.dataset.d; state.slot=null; state.userPickedSlot=false; render(); };
@@ -823,22 +1016,43 @@ addEventListener('resize', syncHdr);
 $('content').addEventListener('click', e=>{ const c=e.target.closest('.card[data-k]'); if(c) openResp(c.dataset.k); });
 $('content').addEventListener('keydown', e=>{ if(e.key!=='Enter' && e.key!==' ') return; const c=e.target.closest('.card[data-k]'); if(c && e.target===c){ e.preventDefault(); openResp(c.dataset.k); } });
 $('rpClose').onclick = closeResp;
-$('resp').onclick = e=>{ if(e.target.id==='resp') closeResp(); };
+// fundo escuro fecha qualquer modal
+['resp','rules','filt'].forEach(id=>$(id).addEventListener('click', e=>{ if(e.target.id===id) closeModal(id); }));
+$('resp').addEventListener('touchstart', ()=>{ respTouch = true; }, {passive:true});
+const respTouchEnd = e=>{
+  if(e.touches.length) return; respTouch = false;
+  if(respPend){ respPend = 0; setTimeout(()=>{ if(!respTouch) renderResp(); }, 600); } // depois da inércia da rolagem
+};
+$('resp').addEventListener('touchend', respTouchEnd); $('resp').addEventListener('touchcancel', respTouchEnd);
 $('rpDays').onclick = e=>{ const b=e.target.closest('button[data-d]'); if(!b||!state.resp) return; state.resp.day=b.dataset.d; renderResp(true); };
 $('rpList').onclick = e=>{ // pula pra esse dia/horário na grade
   const b=e.target.closest('.rr'); if(!b||!state.resp) return;
   state.day=state.resp.day; state.slot=+b.dataset.s; state.userPickedSlot=true; state.view='slot';
-  closeResp(); render(true);
-  window.scrollTo({top: Math.max(0, $('slotSentinel').getBoundingClientRect().top + scrollY - Math.max(hdrH,0) - 4), behavior:beh(true)});
+  closeModal('resp'); render(true); toContent(true);
 };
-// atalhos: Esc fecha modais, "/" foca a busca
+function toContent(always){ // rola até a barra de horários / começo dos cards
+  const y = Math.max(0, $('slotSentinel').getBoundingClientRect().top + scrollY - Math.max(hdrH,0) - mbH - 4);
+  if(always || scrollY > y) window.scrollTo({top:y, behavior:beh(true)});
+}
+// atalhos: Esc fecha modais; Ctrl+K / ⌘K (de qualquer lugar) e "/" (fora de campos) focam a busca
+const IS_MAC = /mac|iphone|ipad/i.test((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '');
+$('qKbd').textContent = IS_MAC ? '⌘K' : 'Ctrl K';
+function focusSearch(){ // celular com o header fora da tela: usa a busca da mini-barra em vez de rolar até o #q
+  if(MQ_MOB.matches && hdrOut){ mbSearch = true; syncMbar(); $('mq').focus(); $('mq').select(); }
+  else { $('q').focus(); $('q').select(); }
+}
 addEventListener('keydown', e=>{
-  if(e.key==='Escape'){ if(state.resp) closeResp(); else closeRules(); return; }
+  if(e.key==='Escape'){ if(openModals.length) closeModal(openModals[openModals.length-1]); return; }
+  if((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && (e.key||'').toLowerCase()==='k'){ // o navegador usa Ctrl+K pra barra de endereço
+    e.preventDefault(); openModals.slice().reverse().forEach(closeModal); focusSearch(); return; // modal aberto: fecha antes
+  }
   const tag=(e.target.tagName||'').toLowerCase();
-  if(e.key==='/' && !e.ctrlKey && !e.metaKey && !e.altKey && !['input','textarea','select'].includes(tag) && !state.resp){ e.preventDefault(); $('q').focus(); $('q').select(); }
+  if(e.key==='/' && !e.ctrlKey && !e.metaKey && !e.altKey && !['input','textarea','select'].includes(tag) && !openModals.length){ e.preventDefault(); focusSearch(); }
 });
 // barra de doação: espaço no fim da página = altura real da barra; botão copia o nome do char
 const CREDIT = $('credit'), syncCredit = ()=>{ document.body.style.paddingBottom = (CREDIT.offsetHeight+12)+'px'; };
+// celular: teclado aberto (busca com foco) esconde a barra de doação
+['q','mq'].forEach(id=>{ $(id).addEventListener('focus', ()=>document.body.classList.add('kb')); $(id).addEventListener('blur', ()=>document.body.classList.remove('kb')); });
 syncCredit(); if(window.ResizeObserver) new ResizeObserver(syncCredit).observe(CREDIT); else addEventListener('resize', syncCredit);
 $('btnCopy').onclick = async ()=>{
   const b=$('btnCopy'), name='Ozob Tank';
@@ -880,11 +1094,18 @@ if(LIKES_URL){
     likeBusy = false; paintLike();
   };
 }
-$('viewSeg').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.view=b.dataset.v; try{localStorage.setItem('dxp-ui',JSON.stringify({view:state.view}))}catch(_){} render(); };
-$('q').oninput = e=>{ state.q=e.target.value.trim(); sresAll=false; render(); };
+function setView(v){ state.view=v; try{localStorage.setItem('dxp-ui',JSON.stringify({view:state.view}))}catch(_){} render(); }
+$('viewSeg').onclick = e=>{ const b=e.target.closest('button'); if(b) setView(b.dataset.v); };
+function setQ(v){ // #q (header) e #mq (mini-barra) usam o mesmo state.q
+  state.q=v.trim(); sresAll=false;
+  if($('q').value!==v) $('q').value=v;
+  if($('mq').value!==v) $('mq').value=v;
+  render();
+}
+$('q').oninput = e=>setQ(e.target.value);
 // painel de resultados da busca (todos os dias/horários)
 $('sres').onclick = e=>{
-  if(e.target.closest('#sresClear')){ $('q').value=''; state.q=''; render(); $('q').focus(); return; }
+  if(e.target.closest('#sresClear')){ setQ(''); if(!mbSearch) $('q').focus(); return; }
   if(e.target.closest('#sresMore')){ sresAll=true; render(); return; }
   const b = e.target.closest('.sh'); if(!b) return;
   if(b.classList.contains('rsp')) openResp(b.dataset.k); else goToHit(b.dataset.d, +b.dataset.s, b.dataset.k);
@@ -892,9 +1113,61 @@ $('sres').onclick = e=>{
 $('grp').onchange = e=>{ state.grp=e.target.value; render(); };
 $('onlyBusy').onchange = e=>{ state.onlyBusy=e.target.checked; render(); };
 $('btnRefresh').onclick = refresh;
-$('btnRules').onclick = ()=>$('rules').classList.add('open');
-function closeRules(){ $('rules').classList.remove('open'); }
-$('rules').onclick = e=>{ if(e.target.id==='rules') closeRules(); };
+// regras
+$('btnRules').onclick = ()=>{ showModal('rules'); $('rulesBody').scrollTop=0; $('rulesClose').focus({preventScroll:true}); };
+const closeRules = ()=>closeModal('rules');
+$('rulesClose').onclick = closeRules; $('rulesOk').onclick = closeRules;
+
+/* ---------- mini-barra do celular + sheet de filtros ---------- */
+const MQ_MOB = matchMedia('(max-width:600px)'), MB = $('mbar');
+let mbH = 0, hdrOut = false, scrDown = false, lastY = scrollY, mbSearch = false;
+const filtCount = ()=>(state.grp?1:0) + (state.onlyBusy?1:0) + (state.view==='resp'?1:0);
+function syncMbar(){
+  const n = filtCount(), act = !!state.q || n>0;
+  // aparece com o header fora da tela ao rolar pra cima; fica enquanto houver busca/filtro ativo ou a busca dela estiver em uso
+  const show = MQ_MOB.matches && (mbSearch || (hdrOut && (!scrDown || act)));
+  MB.classList.toggle('show', show);
+  MB.classList.toggle('srch', mbSearch || !!state.q);
+  $('mbN').hidden = !n; setText($('mbN'), n?String(n):'');
+  $('mbFilt').setAttribute('aria-label', 'Filtros' + (n?` (${n} ativo${n>1?'s':''})`:''));
+  const h = show ? MB.offsetHeight : 0;
+  if(h!==mbH){ mbH = h; document.documentElement.style.setProperty('--mb-h', h+'px'); }
+}
+if(window.IntersectionObserver) new IntersectionObserver(([en])=>{ hdrOut = !en.isIntersecting && en.boundingClientRect.top < 0; syncMbar(); }).observe(document.querySelector('header'));
+addEventListener('scroll', ()=>{ // direção da rolagem (com folga pra não piscar)
+  const y = scrollY, d = y - lastY; if(Math.abs(d) < 8) return;
+  lastY = y; if((d>0)!==scrDown){ scrDown = d>0; syncMbar(); }
+}, {passive:true});
+(MQ_MOB.addEventListener ? MQ_MOB.addEventListener('change', syncMbar) : MQ_MOB.addListener(syncMbar));
+$('mbDay').onchange = e=>{ state.day=e.target.value; state.slot=null; state.userPickedSlot=false; render(); toContent(); };
+$('mbSearch').onclick = ()=>{ mbSearch = true; syncMbar(); $('mq').focus(); };
+$('mq').oninput = e=>{
+  setQ(e.target.value);
+  const s = $('sres'); if(s.hidden) return; // mostra o painel de resultados logo abaixo da mini-barra
+  const r = s.getBoundingClientRect(); if(r.top < mbH || r.top > innerHeight*.4) window.scrollTo({top: Math.max(0, r.top + scrollY - mbH - 8)});
+};
+$('mq').addEventListener('blur', ()=>setTimeout(()=>{ if(document.activeElement!==$('mq')){ mbSearch = false; syncMbar(); } }, 150));
+$('mbCancel').onmousedown = e=>e.preventDefault(); // não tira o foco do campo antes do clique
+$('mbCancel').onclick = ()=>{ mbSearch = false; setQ(''); $('mq').blur(); };
+// sheet de filtros
+function renderFilt(){
+  if(!openModals.includes('filt')) return;
+  const today = todayTab();
+  setHTML($('ftDays'), DAY_TABS.map(t=>`<button type="button" data-d="${esc(t)}" class="${t===state.day?'on':''}" aria-pressed="${t===state.day}">${esc(shortDay(t))}${t===today?'<span class="today">HOJE</span>':''}</button>`).join(''));
+  $('ftDays').querySelectorAll('button').forEach(b=>{ const on=b.dataset.d===state.day; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
+  $('ftView').querySelectorAll('button').forEach(b=>{ const on=b.dataset.v===state.view; b.classList.toggle('on',on); b.setAttribute('aria-pressed',on); });
+  setHTML($('ftGrp'), $('grp').innerHTML); $('ftGrp').value = state.grp;
+  $('ftBusy').checked = state.onlyBusy;
+  $('ftClear').disabled = !filtCount();
+}
+$('mbFilt').onclick = ()=>{ showModal('filt'); renderFilt(); $('ftClose').focus({preventScroll:true}); };
+$('ftClose').onclick = ()=>closeModal('filt');
+$('ftOk').onclick = ()=>{ closeModal('filt'); toContent(); };
+$('ftDays').onclick = e=>{ const b=e.target.closest('button[data-d]'); if(!b) return; state.day=b.dataset.d; state.slot=null; state.userPickedSlot=false; render(); };
+$('ftView').onclick = e=>{ const b=e.target.closest('button[data-v]'); if(b) setView(b.dataset.v); };
+$('ftGrp').onchange = e=>{ state.grp=e.target.value; render(); };
+$('ftBusy').onchange = e=>{ state.onlyBusy=e.target.checked; render(); };
+$('ftClear').onclick = ()=>{ state.grp=''; state.onlyBusy=false; setView('slot'); };
 $('lnkSheet').href = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
 $('ivl').textContent = REFRESH_MIN;
 
