@@ -249,6 +249,19 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
 @media (prefers-reduced-motion:reduce){.credit .coin,.credit .cta{animation:none}}
 .credit .cta .l2,.credit .cta.ok .l1{display:none}
 .credit .cta.ok .l2{display:inline}
+/* botão de like */
+.credit .like{position:relative;display:inline-flex;align-items:center;gap:5px;margin-left:10px;padding:4px 11px;border-radius:999px;border:1px solid #6b2b3a;background:rgba(232,72,106,.1);color:#ffb3c3;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums;vertical-align:middle;transition:background .15s,border-color .15s,transform .1s}
+.credit .like[hidden]{display:none}
+.credit .like:hover{border-color:#e8486a;background:rgba(232,72,106,.2)}
+.credit .like:active{transform:scale(.94)}
+.credit .like .hrt{font-size:14px;line-height:1;color:#e8486a;transition:transform .2s}
+.credit .like.on{background:#e8486a;border-color:#e8486a;color:#fff}
+.credit .like.on .hrt{color:#fff}
+.credit .like.pop .hrt{animation:pop .45s ease-out}
+.credit .like .burst{position:absolute;left:50%;top:0;color:#e8486a;font-size:16px;pointer-events:none;animation:rise .9s ease-out forwards}
+@keyframes pop{40%{transform:scale(1.6)}}
+@keyframes rise{from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-38px) scale(1.3)}}
+@media (prefers-reduced-motion:reduce){.credit .like.pop .hrt,.credit .like .burst{animation:none}.credit .like .burst{display:none}}
 @media (max-width:600px){
   .credit{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;padding:8px 12px;font-size:12.5px;text-align:left;line-height:1.35}
   .credit .coin{font-size:20px}
@@ -320,7 +333,7 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
   <span class="coin" aria-hidden="true">🪙</span>
   <span class="msg">Curtiu? <b>Joga uns Tibia Coins pro <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></b> e ajuda a criar outras funcionalidades!</span>
   <button type="button" class="cta" id="btnCopy" title="Copia o nome do char pra você transferir os TC"><span class="l1">🪙 Copiar nome<span class="xs"> pra doar</span></span><span class="l2">✓ Copiado!</span></button>
-  <span class="by">Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></span>
+  <span class="by">Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a><button type="button" class="like" id="btnLike" hidden aria-pressed="false" title="Curtir o site"><span class="hrt" aria-hidden="true">♥</span><span id="likeN">…</span></button></span>
 </div>
 
 <script>
@@ -331,6 +344,8 @@ const DAY_TABS = ['Sexta (20)','Sábado (21)','Domingo (22)']; // só o fim de s
 const RULES_TAB = 'Regras';
 const REFRESH_MIN = 2;          // intervalo de atualização automática (minutos)
 const SERVER_SAVE = '06:10';    // virada do dia de caça
+// URL do App da Web do Google Apps Script que conta os likes (termina em /exec). Vazio = botão de like escondido.
+const LIKES_URL = 'https://script.google.com/macros/s/AKfycbx03kpCsYZOeO67Ggnda6vkdoDXcE8wptUMKUvjJ2gRfRvEXFR6qbYYWWBpbxgN4yw/exec';
 
 // Respawn (texto do cabeçalho da planilha, minúsculo) -> monstros (nome do arquivo .gif no TibiaWiki)
 const MOBS = {
@@ -831,6 +846,40 @@ $('btnCopy').onclick = async ()=>{
   catch(_){ const t=document.createElement('textarea'); t.value=name; t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); }catch(__){} t.remove(); }
   b.classList.add('ok'); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove('ok'), 2400);
 };
+// like: contador guardado numa planilha via Apps Script; 1 like por navegador (localStorage)
+const LIKE_KEY = 'dxp-liked';
+const likedHere = ()=>{ try{ return localStorage.getItem(LIKE_KEY)==='1'; }catch(_){ return false; } };
+let likeCount = null, likeBusy = false;
+function paintLike(){
+  const b=$('btnLike'), on=likedHere();
+  $('likeN').textContent = likeCount==null ? '…' : likeCount.toLocaleString('pt-BR');
+  b.classList.toggle('on', on); b.setAttribute('aria-pressed', on);
+  b.title = on ? 'Você curtiu! Valeu ❤️' : 'Curtir o site';
+  b.setAttribute('aria-label', (on?'Você curtiu. ':'Curtir o site. ') + (likeCount==null?'':likeCount+' curtidas'));
+}
+async function likeApi(action){
+  const r = await fetch(`${LIKES_URL}?action=${action}&_=${Date.now()}`, {credentials:'omit', cache:'no-store'});
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j = await r.json(); if(typeof j.likes!=='number') throw new Error('resposta inválida');
+  return j.likes;
+}
+function burstHearts(b){
+  for(let k=0;k<5;k++){ const s=document.createElement('span'); s.className='burst'; s.textContent='♥'; s.style.setProperty('--dx',(k-2)*9+'px'); s.style.animationDelay=k*60+'ms'; b.appendChild(s); setTimeout(()=>s.remove(), 1100+k*60); }
+}
+if(LIKES_URL){
+  const b=$('btnLike'); b.hidden=false; paintLike();
+  likeApi('get').then(n=>{ likeCount=n; paintLike(); }).catch(e=>{ console.warn('likes indisponíveis', e); b.hidden=true; });
+  b.onclick = async ()=>{
+    b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+    if(likedHere() || likeBusy) return; // já curtiu: só a animação
+    likeBusy = true; burstHearts(b);
+    try{ localStorage.setItem(LIKE_KEY,'1'); }catch(_){}
+    if(likeCount!=null) likeCount++; paintLike(); // otimista
+    try{ likeCount = await likeApi('like'); }
+    catch(e){ console.warn('falha ao curtir', e); try{ localStorage.removeItem(LIKE_KEY); }catch(_){} if(likeCount!=null) likeCount--; }
+    likeBusy = false; paintLike();
+  };
+}
 $('viewSeg').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.view=b.dataset.v; try{localStorage.setItem('dxp-ui',JSON.stringify({view:state.view}))}catch(_){} render(); };
 $('q').oninput = e=>{ state.q=e.target.value.trim(); sresAll=false; render(); };
 // painel de resultados da busca (todos os dias/horários)
