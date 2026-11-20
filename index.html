@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Double XP — Respawns planilhados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0d0a; --bg2:#17130e; --card:#1d1812; --card2:#241e16; --line:#3a2f20;
+  --gold:#e0b552; --gold2:#a9822f; --text:#ece3d2; --muted:#9c8f78; --free:#5d8a4a;
+  --hl:#ffda6b; --now:#c4452b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px}
+body{background:radial-gradient(1200px 600px at 50% -200px,#2b2114 0%,transparent 70%),var(--bg)}
+header{position:sticky;top:0;z-index:20;background:rgba(15,13,10,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:12px 20px 10px}
+.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+h1{font-family:Cinzel,serif;font-weight:800;color:var(--gold);margin:0;font-size:22px;letter-spacing:.5px}
+h1 small{display:block;font-family:Inter;font-weight:500;color:var(--muted);font-size:12px;letter-spacing:0}
+.spacer{flex:1}
+.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--free);box-shadow:0 0 8px var(--free)}
+.dot.err{background:var(--now);box-shadow:0 0 8px var(--now)}
+.dot.load{background:var(--gold);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+button,.btn{background:var(--card2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px 12px;font:inherit;cursor:pointer}
+button:hover{border-color:var(--gold2)}
+button.on{background:var(--gold);color:#1a1307;border-color:var(--gold);font-weight:600}
+.days{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.days button{padding:6px 12px}
+.days button .today{font-size:10px;margin-left:6px;color:var(--now);font-weight:700}
+.days button.on .today{color:#5a1408}
+.tools{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+input[type=search]{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 12px;font:inherit;min-width:240px}
+input[type=search]:focus{outline:none;border-color:var(--gold2)}
+select{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font:inherit}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0}
+main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
+.top,.days,.tools{max-width:1460px;margin-left:auto;margin-right:auto}
+.slots{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px}
+.slots button{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:12px;position:relative}
+.slots button.now:not(.on){border-color:var(--now);color:#ffb3a3}
+.slots button .cnt{opacity:.6;margin-left:4px;font-size:11px}
+.group{margin-bottom:26px}
+.group h2{font-family:Cinzel,serif;color:var(--gold);font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.group h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s}
+.card.free{opacity:.55}
+.card.match{border-color:var(--hl);box-shadow:0 0 0 1px var(--hl),0 0 18px rgba(255,218,107,.15)}
+.card .name{font-weight:700;font-size:14px}
+.card .sub{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.mobs{display:flex;gap:4px;flex-wrap:wrap;min-height:40px;align-items:flex-end}
+.mobs img{width:48px;height:48px;object-fit:contain;image-rendering:pixelated;background:rgba(255,255,255,.03);border-radius:6px}
+.mobs .noimg{width:48px;height:48px;border-radius:6px;background:rgba(255,255,255,.04);display:grid;place-items:center;color:var(--muted);font-size:20px}
+.who{background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;white-space:pre-wrap;line-height:1.4;word-break:break-word}
+.who.empty{color:var(--free);font-style:italic}
+.list{display:flex;flex-direction:column;gap:3px;font-size:12px}
+.row{display:grid;grid-template-columns:92px 1fr;gap:8px;padding:4px 6px;border-radius:6px}
+.row:nth-child(odd){background:rgba(0,0,0,.18)}
+.row .t{color:var(--muted);font-variant-numeric:tabular-nums}
+.row.now{outline:1px solid var(--now)}
+.row.match{background:rgba(255,218,107,.14)}
+.row .p{white-space:pre-wrap;word-break:break-word}
+.row .p.empty{color:var(--free);font-style:italic}
+mark{background:var(--hl);color:#1a1307;border-radius:3px;padding:0 2px}
+.empty-state{color:var(--muted);text-align:center;padding:60px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.open{display:flex}
+.modal .box{background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:760px;max-height:85vh;overflow:auto;padding:20px 24px}
+.modal h3{font-family:Cinzel,serif;color:var(--gold);margin-top:0}
+.modal p{margin:6px 0;line-height:1.5}
+.err-box{background:#3a1710;border:1px solid var(--now);padding:12px;border-radius:10px;margin-bottom:14px}
+footer{color:var(--muted);font-size:11px;text-align:center;padding:20px}
+footer a{color:var(--gold2)}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Double XP — Respawns<small id="evt">carregando planilha…</small></h1>
+    <div class="spacer"></div>
+    <div class="status"><span class="dot load" id="dot"></span><span id="upd">—</span></div>
+    <button id="btnRefresh" title="Recarregar agora">↻ Atualizar</button>
+    <button id="btnRules">📜 Regras</button>
+    <a class="btn" id="lnkSheet" target="_blank" rel="noopener" style="text-decoration:none">Abrir planilha</a>
+  </div>
+  <div class="days" id="days"></div>
+  <div class="tools">
+    <div class="seg" id="viewSeg">
+      <button data-v="slot" class="on">Por horário</button>
+      <button data-v="resp">Por respawn</button>
+    </div>
+    <input type="search" id="q" placeholder="Buscar jogador ou respawn…">
+    <select id="grp"><option value="">Todas as hunts</option></select>
+    <label style="color:var(--muted);font-size:12px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="onlyBusy"> só ocupados</label>
+  </div>
+</header>
+
+<main>
+  <div id="err"></div>
+  <div class="slots" id="slots"></div>
+  <div id="content"><div class="empty-state">Carregando…</div></div>
+</main>
+
+<div class="modal" id="rules"><div class="box"><h3>Regras</h3><div id="rulesBody">—</div><p style="margin-top:16px"><button onclick="closeRules()">Fechar</button></p></div></div>
+
+<footer>Dados lidos ao vivo da planilha do Google · atualiza a cada <span id="ivl"></span> min · gifs: <a href="https://tibia.fandom.com" target="_blank" rel="noopener">TibiaWiki</a></footer>
+
+<script>
+/* ===================== CONFIG ===================== */
+const SHEET_ID = '17iHLJVrGJHpOv9BY_vlQkaBoOR6ylHb5T5plSs1IBOA';
+// Abas de dias (nome exato da aba na planilha). Se criarem uma aba nova, é só adicionar aqui.
+const DAY_TABS = ['Sexta (20)','Sábado (21)','Domingo (22)','Terça (23)','Quarta (24)','Quinta (25)','Segunda (29)'];
+const RULES_TAB = 'Regras';
+const REFRESH_MIN = 2;          // intervalo de atualização automática (minutos)
+const SERVER_SAVE = '06:10';    // virada do dia de caça
+
+// Respawn (texto do cabeçalho da planilha, minúsculo) -> monstros (nome do arquivo .gif no TibiaWiki)
+const MOBS = {
+  'ingol térreo': ['Carnivostrich','Harpy','Rhindeer','Liodile'],
+  'ingol -1': ['Boar Man','Crape Man','Harpy'],
+  'ingol -2': ['Boar Man','Crape Man','Harpy'],
+  'ingol -3': ['Boar Man','Crape Man','Liodile'],
+  'carrinho 1 (aranha esq.)': ['Undertaker','Stalking Stalk','Emerald Tortoise'],
+  'carrinho 1 (aranha dir.)': ['Undertaker','Stalking Stalk','Emerald Tortoise'],
+  'carrinho 2 norte (fear)': ['Gore Horn','Mantosaurus','Gorerilla','Shrieking Cry-Stal'],
+  'carrinho 2 sul (fear)': ['Gore Horn','Mantosaurus','Gorerilla','Shrieking Cry-Stal'],
+  'carrinho 3 (hulk esquerda)': ['Hulking Prehemoth','Sabretooth','Noxious Ripptor','Nighthunter'],
+  'carrinho 3 (hulk direita)': ['Hulking Prehemoth','Sabretooth','Noxious Ripptor','Headpecker'],
+  'brachiodemons': ['Brachiodemon','Infernal Demon','Infernal Phantom'],
+  'dark thais': ['Many Faces','Distorted Phantom','Mirror Image'],
+  'fear': ['Bony Sea Devil','Turbulent Elemental','Capricious Phantom','Hazardous Phantom'],
+  'rottem golem (nd + se)': ['Rotten Golem','Branchy Crawler','Mould Phantom'],
+  'rottem golem (ne + sd)': ['Rotten Golem','Branchy Crawler','Mould Phantom'],
+  'furious crater': ['Cloak of Terror','Vibrant Phantom','Courage Leech'],
+  'darklight core': ['Darklight Construct','Darklight Emitter','Darklight Matter','Darklight Source'],
+  'gloom pillars': ['Walking Pillar','Wandering Pillar','Darklight Striker'],
+  'jaded roots': ['Meandering Mushroom','Mycobiontic Beetle','Oozing Carcass','Sopping Carcass'],
+  'putrefactory': ['Bloated Man-Maggot','Converter','Rotten Man-Maggot','Oozing Corpus','Sopping Corpus'],
+  'ice': ['Icecold Book','Animated Feather','Biting Book'],
+  'energy': ['Energetic Book','Brain Squid','Flying Book'],
+  'fire': ['Burning Book','Rage Squid','Guardian of Tales','Cursed Book'],
+  'radiant ascendancy': ['Radiant Templar','Radiant Inquisitor','Radiant Zealot','Devoted Radiant Templar'],
+  'radiant skyhold': ['Radiant Paragon','Radiant Acolyte','Radiant Warden','Devoted Radiant Paragon'],
+  'asura espelho': ['Dawnfire Asura','Midnight Asura','Frost Flower Asura'],
+  'true asura': ['True Dawnfire Asura','True Midnight Asura','True Frost Flower Asura'],
+  'cobra': ['Cobra Assassin','Cobra Scout','Cobra Vizier'],
+  'cobra -1': ['Cobra Assassin','Cobra Scout','Cobra Vizier'],
+  'dt seal': ['Demon','Destroyer','Dark Torturer','Juggernaut'],
+  'dt seal -1': ['Demon','Destroyer','Dark Torturer','Juggernaut'],
+  'pumin (-1 e -2, ou -3)': ['Hellhound','Juggernaut','Dark Torturer'],
+  'plag (-1 ou -2)': ['Blightwalker','Defiler','Plaguesmith','Disgusting Ooze'],
+  'undead (-1 ou -2)': ['Undead Dragon','Death Dragon','Spectre','Phantasm'],
+  'caminho': ['Vexclaw','Grimeleech','Hellflayer','Demon'],
+  'fury seal': ['Fury','Hellfire Fighter','Juggernaut'],
+  'unhallowed crypt': ['Crypt Construct','Crypt Fiend','Creepy Crawler'],
+  'outer crypt': ['Haunted Hunter','Walking Dread','Bone Overlord','Bone Bear'],
+  'inner crypt': ['Crypt Mage','Cyclursus','Roaming Dread'],
+  'azzilon castelo lower (térreo e +1)': ['Gorger Inferniarch','Broodrider Inferniarch','Sineater Inferniarch'],
+  'azzilon castelo lower (+2 e +3)': ['Gorger Inferniarch','Broodrider Inferniarch','Sineater Inferniarch'],
+  'azzilon catacombs -1': ['Spellreaper Inferniarch','Brinebrute Inferniarch','Hellhunter Inferniarch'],
+  'azzilon catacombs -2': ['Spellreaper Inferniarch','Brinebrute Inferniarch','Hellhunter Inferniarch'],
+  'azzilon catacombs -3 e -4': ['Spellreaper Inferniarch','Brinebrute Inferniarch','Hellhunter Inferniarch'],
+  'roshamuul west': ['Guzzlemaw','Silencer','Frazzlemaw'],
+  'goanas': ['Adult Goanna','Young Goanna'],
+  'falcon': ['Falcon Knight','Falcon Paladin'],
+  'elfo de fogo': ['Crazed Summer Vanguard','Crazed Summer Rearguard','Insane Siren'],
+  'leao': ['Werelion','Werelioness','White Lion'],
+  'careca venore': ['Flimsy Lost Soul','Mean Lost Soul','Freakish Lost Soul'],
+  'dp rosha (norte)': ['Retching Horror','Choking Fear','Frazzlemaw'],
+  'dp rosha (sul)': ['Retching Horror','Choking Fear','Frazzlemaw'],
+  'dt inq': ['Demon','Destroyer','Hellhound','Dark Torturer'],
+  'bashmu': ['Bashmu','Juvenile Bashmu'],
+  'girtablilu': ['Girtablilu Warrior','Venerable Girtablilu'],
+  'naga': ['Naga Warrior','Naga Archer'],
+  'war dragons': ['Wardragon'],
+  'bulltaur': ['Bulltaur Brute','Bulltaur Alchemist','Bulltaur Forgepriest'],
+  'sphinx -2': ['Feral Sphinx','Sphinx','Manticore'],
+  'norcferatu dungeons (west)': ['Norcferatu Heartless','Norcferatu Nightweaver','Varg','Gloom Maw'],
+  'norcferatu dungeons (east)': ['Norcferatu Heartless','Norcferatu Nightweaver','Orclops Bloodbreaker','Dworc Shadowstalker'],
+  'norcferatu fortress': ['Norcferatu Heartless','Norcferatu Nightweaver','Varg','Gloom Maw'],
+  'rootthing': ['Rootthing Amber Shaper','Rootthing Bug Tracker','Rootthing Nutshell'],
+  'quara': ['Quara Mantassin','Quara Predator','Quara Hydromancer','Quara Constrictor'],
+  'warzone 7': ['Afflicted Strider','Blemished Spawn','Eyeless Devourer'],
+  'warzone 8': ['Lavafungus','Lavaworm','Streaked Devourer'],
+  'warzone 9': ['Varnished Diremaw','Diremaw','Cave Chimera','Tremendous Tyrant'],
+};
+/* ================================================== */
+
+const norm = s => (s||'').toLowerCase().replace(/\s+/g,' ').trim();
+const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const GIF_PATH = {"Adult Goanna": "0/0f|20220507012242", "Afflicted Strider": "6/62|20220530225751", "Animated Feather": "c/c5|20180607140213", "Bashmu": "6/67|20210527031805", "Biting Book": "9/9d|20180607130122", "Blemished Spawn": "e/ea|20220602220125", "Blightwalker": "b/b3|20120425222059", "Bloated Man-Maggot": "6/6c|20230613180247", "Boar Man": "a/af|20221108204824", "Bone Bear": "4/4b|20140123151427|Undead_Cavebear.gif", "Bone Overlord": "0/0d|20251108011231", "Bony Sea Devil": "1/14|20220602202044", "Brachiodemon": "0/02|20200716000055", "Brain Squid": "c/cf|20180607130124", "Branchy Crawler": "c/cc|20220530225513", "Brinebrute Inferniarch": "a/a4|20241105122515", "Broodrider Inferniarch": "b/bb|20241105122540", "Bulltaur Alchemist": "6/62|20231114094938", "Bulltaur Brute": "c/c9|20231114095000", "Bulltaur Forgepriest": "4/48|20231114095019", "Burning Book": "f/f5|20180607130123", "Capricious Phantom": "6/6b|20200611061713", "Carnivostrich": "7/73|20221108204841", "Cave Chimera": "f/f7|20210527054803", "Choking Fear": "c/ce|20210420140910", "Cloak of Terror": "d/d4|20220602202244", "Cobra Assassin": "6/63|20190701203956", "Cobra Scout": "b/b9|20190701203955", "Cobra Vizier": "4/43|20190701203633", "Converter": "3/32|20230613180248", "Courage Leech": "f/ff|20220602202401", "Crape Man": "7/7a|20221108204035", "Crazed Summer Rearguard": "a/aa|20181107202649", "Crazed Summer Vanguard": "1/11|20181107202649", "Creepy Crawler": "3/37|20251108014351", "Crypt Construct": "f/fd|20251108014323", "Crypt Fiend": "c/c2|20251108014302", "Crypt Mage": "4/47|20251108014240", "Cursed Book": "4/4a|20180607130123", "Cyclursus": "7/73|20251108014219", "Dark Torturer": "b/b5|20061212191617", "Darklight Construct": "8/8f|20230613180249", "Darklight Emitter": "0/05|20230613180251", "Darklight Matter": "1/19|20230613180253", "Darklight Source": "3/3b|20230613180254", "Darklight Striker": "2/27|20230613130524", "Dawnfire Asura": "b/ba|20150625214314", "Death Dragon": "6/6f|20171218212220|Undead_Dragon.gif", "Defiler": "1/1d|20171220002856", "Demon": "7/75|20150414134039", "Destroyer": "3/36|20061212193751", "Devoted Radiant Paragon": "2/2e|20260720011637", "Devoted Radiant Templar": "9/9f|20260720011640", "Diremaw": "a/ac|20171107134720", "Disgusting Ooze": "1/1d|20171220002856|Defiler.gif", "Distorted Phantom": "b/bc|20200611061714", "Dworc Shadowstalker": "8/8f|20250626134313", "Emerald Tortoise": "4/48|20220621120928", "Energetic Book": "9/97|20180607140216", "Eyeless Devourer": "1/19|20220602220119", "Falcon Knight": "1/19|20180627182705", "Falcon Paladin": "6/63|20180607130125", "Feral Sphinx": "e/ec|20190702012025", "Flimsy Lost Soul": "4/49|20191110161526", "Flying Book": "6/63|20180607130124", "Frazzlemaw": "5/53|20131126123308", "Freakish Lost Soul": "2/2f|20191110161526", "Frost Flower Asura": "9/9a|20180607130129", "Fury": "b/b0|20171222135001", "Girtablilu Warrior": "3/34|20220730175043", "Gloom Maw": "2/2a|20250630065654", "Gore Horn": "d/d7|20220626123651", "Gorerilla": "9/98|20220621120835", "Gorger Inferniarch": "5/59|20241105122612", "Grimeleech": "b/bd|20151112211909", "Guardian of Tales": "0/05|20180608202545", "Guzzlemaw": "7/72|20210420140852", "Harpy": "7/7e|20221108171738", "Haunted Hunter": "3/3c|20251108013758", "Hazardous Phantom": "5/54|20200618021120", "Headpecker": "1/1a|20220621170908", "Hellfire Fighter": "e/e9|20061212194618", "Hellflayer": "2/2a|20151112212404", "Hellhound": "5/50|20061212194952", "Hellhunter Inferniarch": "1/19|20241105122827", "Hulking Prehemoth": "6/64|20220621121102", "Icecold Book": "3/3d|20180607130122", "Infernal Demon": "a/ac|20220602202136", "Infernal Phantom": "9/92|20200611061715", "Insane Siren": "5/58|20181107202651", "Juggernaut": "7/72|20120620225832", "Juvenile Bashmu": "4/4c|20210527033146", "Lavafungus": "a/ab|20220513223506", "Lavaworm": "0/03|20220510222347", "Liodile": "1/12|20221108204603", "Manticore": "0/0b|20190702012029", "Mantosaurus": "7/7c|20220621121137", "Many Faces": "0/01|20220602201600", "Mean Lost Soul": "5/5f|20191110161525", "Meandering Mushroom": "0/09|20230613180255", "Midnight Asura": "b/b4|20150625214344", "Mirror Image": "f/fe|20200620165932", "Mould Phantom": "7/7d|20200611061717", "Mycobiontic Beetle": "7/7c|20230613180256", "Naga Archer": "1/19|20220626140547", "Naga Warrior": "7/76|20220626140905", "Nighthunter": "e/e0|20220621121013", "Norcferatu Heartless": "3/37|20250628134605", "Norcferatu Nightweaver": "6/66|20250628082925", "Noxious Ripptor": "b/bd|20220621120902", "Oozing Carcass": "c/c5|20230613180257", "Oozing Corpus": "2/26|20230613180258", "Orclops Bloodbreaker": "c/c6|20250628082833", "Phantasm": "6/61|20150418075859", "Plaguesmith": "d/d3|20070906224850", "Quara Constrictor": "f/f5|20060803212828", "Quara Hydromancer": "8/8a|20150612081219", "Quara Mantassin": "9/9d|20240228100629", "Quara Predator": "5/54|20201209191003", "Radiant Acolyte": "7/78|20260720011842", "Radiant Inquisitor": "b/b3|20260720011845", "Radiant Paragon": "7/70|20260720011848", "Radiant Templar": "7/74|20260720011851", "Radiant Warden": "7/74|20260720011855", "Radiant Zealot": "b/bd|20260720011859", "Rage Squid": "1/15|20180607140214", "Retching Horror": "7/70|20131126125338", "Rhindeer": "3/32|20221108204526", "Roaming Dread": "c/cd|20251108013648", "Rootthing Amber Shaper": "8/86|20240604125416", "Rootthing Bug Tracker": "a/a9|20240604125433", "Rootthing Nutshell": "e/e5|20240604125358", "Rotten Golem": "e/e2|20220518220435", "Rotten Man-Maggot": "0/0d|20230613180259", "Sabretooth": "d/dd|20091130002703", "Shrieking Cry-Stal": "b/be|20220621120822|Shrieking_Cry-stal.gif", "Silencer": "d/dd|20131126125103", "Sineater Inferniarch": "0/00|20241105122639", "Sopping Carcass": "f/f3|20230613180300", "Sopping Corpus": "9/94|20230613180301", "Spectre": "5/5b|20220829162358", "Spellreaper Inferniarch": "4/44|20241105122708", "Sphinx": "f/fa|20190702012032", "Stalking Stalk": "3/39|20220621121716", "Streaked Devourer": "3/3a|20220513142023", "Tremendous Tyrant": "3/3e|20210527061915", "True Dawnfire Asura": "1/14|20180607130128", "True Frost Flower Asura": "9/9a|20180607130127", "True Midnight Asura": "a/a6|20180607130128", "Turbulent Elemental": "f/f7|20220602201946", "Undead Dragon": "6/6f|20171218212220", "Undertaker": "a/a1|20220621121115", "Varg": "9/92|20250628082354", "Varnished Diremaw": "2/26|20210527010243", "Venerable Girtablilu": "1/10|20210527030048", "Vexclaw": "e/ed|20151112213544", "Vibrant Phantom": "b/bc|20200611061720", "Walking Dread": "7/73|20251108013603", "Walking Pillar": "2/26|20230613180239", "Wandering Pillar": "a/a2|20230613180241", "Wardragon": "7/70|20231114095055", "Werelion": "5/5c|20200611061712", "Werelioness": "7/71|20200611061713", "White Lion": "e/e9|20210209141036", "Young Goanna": "5/5e|20220507012014"}; // nome: "a/ab|cb[|arquivo]" — cb é o timestamp exigido pelo Fandom
+const gif = n => { const f=n.replace(/ /g,'_')+'.gif'; if(GIF_PATH[n]){ const [p,cb,file]=GIF_PATH[n].split('|'); const f2=file||f; return `https://static.wikia.nocookie.net/tibia/images/${p}/${encodeURIComponent(f2)}/revision/latest?cb=${cb}&path-prefix=en`; } return 'https://tibia.fandom.com/wiki/Special:FilePath/'+encodeURIComponent(f); };
+const $ = id => document.getElementById(id);
+
+const state = { data:{}, day:null, view:'slot', slot:null, q:'', grp:'', onlyBusy:false, rules:null, userPickedSlot:false };
+try{ const s=JSON.parse(localStorage.getItem('dxp-ui')||'{}'); if(s.view) state.view=s.view; }catch(e){}
+
+/* ---------- carregamento (JSONP do gviz, funciona sem servidor) ---------- */
+let reqN = 0;
+function loadTab(tab){
+  return new Promise((res,rej)=>{
+    const cb = '__gv' + (++reqN);
+    const s = document.createElement('script');
+    const t = setTimeout(()=>{cleanup(); rej(new Error('timeout em '+tab));}, 20000);
+    function cleanup(){ clearTimeout(t); delete window[cb]; s.remove(); }
+    window[cb] = r => { cleanup(); r.status==='error' ? rej(new Error((r.errors||[{}])[0].detailed_message||'erro')) : res(r.table); };
+    s.onerror = ()=>{ cleanup(); rej(new Error('falha de rede em '+tab)); };
+    s.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?headers=0&tqx=responseHandler:${cb}&sheet=${encodeURIComponent(tab)}&_=${Date.now()}`;
+    document.head.appendChild(s);
+  });
+}
+const cellText = c => c==null ? '' : (c.f!=null ? String(c.f) : (c.v==null ? '' : String(c.v)));
+const tableToRows = table => table.rows.map(r => r.c.map(cellText));
+function parseCSV(t){
+  const rows=[]; let row=[], f='', q=false;
+  for(let i=0;i<t.length;i++){ const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){f+='"';i++;} else q=false; } else f+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){ row.push(f); f=''; }
+    else if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=''; }
+    else if(c!=='\r') f+=c;
+  }
+  row.push(f); rows.push(row); return rows;
+}
+// 1ª tentativa: fetch do CSV (CORS liberado pelo Google); se falhar, JSONP
+async function loadRows(tab){
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?headers=0&tqx=out:csv&sheet=${encodeURIComponent(tab)}&_=${Date.now()}`;
+  try{
+    const r = await fetch(url, {credentials:'omit', cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return parseCSV(await r.text());
+  }catch(e){
+    console.warn('fetch falhou, tentando JSONP', tab, e);
+    return tableToRows(await loadTab(tab));
+  }
+}
+
+function parseDay(rows){
+  const hi = rows.findIndex(r => norm(r[0]).startsWith('hora'));
+  if(hi < 1) return null;
+  const top = rows[hi-1], head = rows[hi];
+  const cols = []; let grp = '';
+  for(let i=1;i<head.length;i++){
+    if(top[i] && norm(top[i])!=='hunts') grp = top[i].trim();
+    const name = (head[i]||'').trim();
+    if(!name || norm(name).startsWith('hora')) continue;
+    cols.push({i, name, grp: grp||'Outras', key: norm(name)});
+  }
+  const slots = [];
+  for(let r=hi+1;r<rows.length;r++){
+    const t = (rows[r][0]||'').trim();
+    if(!/\d{1,2}:\d{2}/.test(t)) continue;
+    slots.push({ label:t, cells: cols.map(c => (rows[r][c.i]||'').trim()) });
+  }
+  return { cols, slots };
+}
+
+async function refresh(){
+  $('dot').className='dot load';
+  try{
+    const res = await Promise.all(DAY_TABS.map(t => loadRows(t).then(parseDay).catch(e=>({error:e.message}))));
+    DAY_TABS.forEach((t,i)=> state.data[t]=res[i]);
+    if(!state.rules){ loadRows(RULES_TAB).then(rows=>{ state.rules=rows; renderHeaderInfo(); }).catch(()=>{}); }
+    const fails = res.filter(r=>!r||r.error);
+    $('err').innerHTML = fails.length===DAY_TABS.length
+      ? `<div class="err-box">Não consegui ler a planilha (${esc((fails[0]||{}).error||'sem dados')}). Confira: (1) o arquivo foi baixado e aberto direto no navegador (pré-visualizações dentro de apps bloqueiam acesso externo); (2) a planilha está como "qualquer pessoa com o link pode ver".</div>` : '';
+    $('dot').className = fails.length ? 'dot err' : 'dot';
+    $('upd').textContent = 'atualizado ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch(e){
+    $('dot').className='dot err'; $('upd').textContent='erro: '+e.message;
+  }
+  if(!state.day) state.day = guessToday();
+  render();
+}
+
+/* ---------- datas / horário atual ---------- */
+function gameNow(){ // retorna {dayNum, minutes} considerando server save
+  const d = new Date(); const [sh,sm]=SERVER_SAVE.split(':').map(Number);
+  let mins = d.getHours()*60+d.getMinutes();
+  const g = new Date(d); if(mins < sh*60+sm) g.setDate(g.getDate()-1);
+  return { dayNum: g.getDate(), mins };
+}
+const tabDay = t => +((t.match(/\((\d+)\)/)||[])[1]||0);
+function todayTab(){ const n=gameNow().dayNum; return DAY_TABS.find(t=>tabDay(t)===n) || null; }
+function guessToday(){ return todayTab() || DAY_TABS[0]; }
+function slotIsNow(label, tab){
+  if(tabDay(tab)!==gameNow().dayNum) return false;
+  const m = label.match(/(\d{1,2}):(\d{2}).*?(\d{1,2}):(\d{2})/); if(!m) return false;
+  const [sh,sm] = SERVER_SAVE.split(':').map(Number), base = sh*60+sm;
+  const rel = x => (x - base + 1440) % 1440;
+  const a = rel(+m[1]*60+ +m[2]), b = rel(+m[3]*60+ +m[4]) || 1440, n = rel(gameNow().mins);
+  return n>=a && n<b;
+}
+
+/* ---------- render ---------- */
+function renderHeaderInfo(){
+  const r = state.rules; if(!r) return;
+  const flat = r.map(x=>x.filter(Boolean));
+  const ev = flat.find(x=>x.some(v=>/double/i.test(v)) && x.length>2);
+  if(ev) $('evt').textContent = 'Evento: ' + (ev[ev.length-1]||'') ;
+  const lines = flat.map(x=>x.join(' · ')).filter(Boolean);
+  const start = lines.findIndex(l=>/REGRAS/i.test(l));
+  $('rulesBody').innerHTML = (start>=0?lines.slice(start+1):lines).map(l=>`<p>${esc(l)}</p>`).join('');
+}
+function hl(text){
+  if(!state.q) return esc(text);
+  const re = new RegExp('('+state.q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  return esc(text).replace(re,'<mark>$1</mark>');
+}
+const strip = s => norm(s).replace(/\s*\(.*?\)\s*/g,' ').trim();
+const MOBS_STRIP = Object.fromEntries(Object.entries(MOBS).map(([k,v])=>[strip(k),v]));
+function mobsHtml(key){
+  const list = MOBS[key] || MOBS_STRIP[strip(key)];
+  if(!list || !list.length) return `<div class="mobs"><div class="noimg">⚔</div></div>`;
+  return `<div class="mobs">${list.map(n=>`<img loading="lazy" referrerpolicy="no-referrer" src="${gif(n)}" alt="${esc(n)}" title="${esc(n)}" onerror="this.outerHTML='<div class=noimg title=&quot;${esc(n)}&quot;>?</div>'">`).join('')}</div>`;
+}
+function renderDays(){
+  const today = todayTab();
+  $('days').innerHTML = DAY_TABS.map(t=>`<button data-d="${esc(t)}" class="${t===state.day?'on':''}">${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</button>`).join('');
+}
+function render(){
+  renderDays();
+  document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.view));
+  const d = state.data[state.day];
+  if(!d || d.error){ $('slots').innerHTML=''; $('content').innerHTML=`<div class="empty-state">${d&&d.error?'Erro ao ler a aba: '+esc(d.error):'Sem dados para esta aba.'}</div>`; return; }
+
+  // filtro de hunts
+  const groups = [...new Set(d.cols.map(c=>c.grp))];
+  const sel=$('grp'); const cur=state.grp;
+  sel.innerHTML = '<option value="">Todas as hunts</option>' + groups.map(g=>`<option ${g===cur?'selected':''}>${esc(g)}</option>`).join('');
+  if(cur && !groups.includes(cur)) state.grp='';
+
+  const q = norm(state.q);
+  const matchCell = (txt,col) => q && (norm(txt).includes(q) || col.key.includes(q) || norm(col.grp).includes(q));
+
+  if(state.view==='slot'){
+    const nowIdx = d.slots.findIndex(s=>slotIsNow(s.label,state.day));
+    if(state.slot==null || state.slot>=d.slots.length || (!state.userPickedSlot && nowIdx>=0)) state.slot = nowIdx>=0?nowIdx:0;
+    $('slots').innerHTML = d.slots.map((s,i)=>{
+      const busy = s.cells.filter(Boolean).length;
+      const hit = q && s.cells.some((c,j)=>c && norm(c).includes(q));
+      return `<button data-s="${i}" class="${i===state.slot?'on':''} ${i===nowIdx?'now':''}" style="${hit&&i!==state.slot?'border-color:var(--hl)':''}">${i===nowIdx?'● ':''}${esc(s.label.replace(/\s*as\s*/i,'–'))}<span class="cnt">${busy}</span></button>`;
+    }).join('');
+    const s = d.slots[state.slot];
+    let html='';
+    for(const g of groups){
+      if(state.grp && g!==state.grp) continue;
+      const cards = d.cols.map((c,j)=>({c,txt:s.cells[j]})).filter(x=>x.c.grp===g)
+        .filter(x=>!state.onlyBusy || x.txt)
+        .filter(x=>!q || matchCell(x.txt,x.c));
+      if(!cards.length) continue;
+      html += `<section class="group"><h2>${esc(g)}</h2><div class="grid">` + cards.map(({c,txt})=>`
+        <div class="card ${txt?'':'free'} ${q&&matchCell(txt,c)?'match':''}">
+          ${mobsHtml(c.key)}
+          <div><div class="sub">${esc(c.grp)}</div><div class="name">${hl(c.name)}</div></div>
+          <div class="who ${txt?'':'empty'}">${txt?hl(txt):'livre'}</div>
+        </div>`).join('') + `</div></section>`;
+    }
+    $('content').innerHTML = html || '<div class="empty-state">Nada encontrado nesse horário.</div>';
+  } else {
+    $('slots').innerHTML='';
+    let html='';
+    for(const g of groups){
+      if(state.grp && g!==state.grp) continue;
+      const cols = d.cols.map((c,j)=>({c,j})).filter(x=>x.c.grp===g).filter(({c,j})=>{
+        const any = d.slots.some(s=>s.cells[j]);
+        if(state.onlyBusy && !any) return false;
+        if(q) return c.key.includes(q) || norm(g).includes(q) || d.slots.some(s=>norm(s.cells[j]).includes(q));
+        return true;
+      });
+      if(!cols.length) continue;
+      html += `<section class="group"><h2>${esc(g)}</h2><div class="grid">` + cols.map(({c,j})=>{
+        const rows = d.slots.map(s=>({s,txt:s.cells[j]})).filter(x=>!state.onlyBusy||x.txt);
+        const used = d.slots.filter(s=>s.cells[j]).length;
+        return `<div class="card">
+          ${mobsHtml(c.key)}
+          <div><div class="sub">${esc(c.grp)} · ${used}/${d.slots.length} horários</div><div class="name">${hl(c.name)}</div></div>
+          <div class="list">${rows.map(({s,txt})=>`<div class="row ${slotIsNow(s.label,state.day)?'now':''} ${q&&txt&&norm(txt).includes(q)?'match':''}"><span class="t">${esc(s.label.replace(/\s*as\s*/i,'–'))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span></div>`).join('')}</div>
+        </div>`;}).join('') + `</div></section>`;
+    }
+    $('content').innerHTML = html || '<div class="empty-state">Nada encontrado.</div>';
+  }
+}
+
+/* ---------- eventos ---------- */
+$('days').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.day=b.dataset.d; state.slot=null; state.userPickedSlot=false; render(); };
+$('slots').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.slot=+b.dataset.s; state.userPickedSlot=true; render(); };
+$('viewSeg').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.view=b.dataset.v; try{localStorage.setItem('dxp-ui',JSON.stringify({view:state.view}))}catch(_){} render(); };
+$('q').oninput = e=>{ state.q=e.target.value.trim(); render(); };
+$('grp').onchange = e=>{ state.grp=e.target.value; render(); };
+$('onlyBusy').onchange = e=>{ state.onlyBusy=e.target.checked; render(); };
+$('btnRefresh').onclick = refresh;
+$('btnRules').onclick = ()=>$('rules').classList.add('open');
+function closeRules(){ $('rules').classList.remove('open'); }
+$('rules').onclick = e=>{ if(e.target.id==='rules') closeRules(); };
+$('lnkSheet').href = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
+$('ivl').textContent = REFRESH_MIN;
+
+refresh();
+setInterval(refresh, REFRESH_MIN*60*1000);
+setInterval(()=>{ if(!state.userPickedSlot) render(); }, 60*1000); // acompanha o horário atual
+</script>
+</body>
+</html>
