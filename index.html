@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Double XP — Respawns planilhados</title>
+<title>Double XP — Respawns da Radioactive em Descubra</title>
+<link rel="icon" href="https://static.tibia.com/images/guildlogos/Radioactive.gif">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -16,9 +17,26 @@
 html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:14px}
 body{background:radial-gradient(1200px 600px at 50% -200px,#2b2114 0%,transparent 70%),var(--bg)}
 header{position:sticky;top:0;z-index:20;background:rgba(15,13,10,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:12px 20px 10px}
-.top{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-h1{font-family:Cinzel,serif;font-weight:800;color:var(--gold);margin:0;font-size:22px;letter-spacing:.5px}
-h1 small{display:block;font-family:Inter;font-weight:500;color:var(--muted);font-size:12px;letter-spacing:0}
+.top{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
+/* hero do topo */
+.hero{position:relative;overflow:hidden;text-align:center;padding:30px 20px 24px;border-bottom:1px solid var(--line);background:radial-gradient(520px 200px at 50% 0%,rgba(224,181,82,.22),transparent 70%),linear-gradient(180deg,#1d160c 0%,var(--bg) 100%)}
+.hero::before,.hero::after{content:"";position:absolute;top:50%;width:min(22vw,260px);height:1px;background:linear-gradient(90deg,transparent,var(--gold2))}
+.hero::before{left:4%}.hero::after{right:4%;transform:scaleX(-1)}
+.hero .guild{display:inline-block;position:relative;margin-bottom:8px;border-radius:50%;transition:transform .2s}
+.hero .guild::before{content:"";position:absolute;inset:-10px;border-radius:50%;background:radial-gradient(circle,rgba(140,255,90,.28),transparent 68%);animation:glow 3.2s ease-in-out infinite;pointer-events:none}
+.hero .guild img{position:relative;display:block;width:72px;height:72px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 0 10px rgba(140,255,90,.35)) drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+.hero .guild:hover{transform:scale(1.08) rotate(-4deg)}
+@keyframes glow{50%{opacity:.45;transform:scale(.92)}}
+@media (prefers-reduced-motion:reduce){.hero .guild::before{animation:none}}
+.hero .kick a{color:inherit;text-decoration:none}
+.hero .kick a:hover{color:var(--gold)}
+.hero .kick b{color:#9be86a;text-shadow:0 0 10px rgba(140,255,90,.4)}
+.hero .kick{display:flex;justify-content:center;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gold2)}
+.hero h1{font-family:Cinzel,serif;font-weight:800;margin:8px 0 2px;font-size:clamp(32px,6vw,56px);line-height:1;letter-spacing:1px;display:inline-flex;align-items:center;gap:14px;background:linear-gradient(180deg,#fff0bf 0%,var(--gold) 55%,#a87a26 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 14px rgba(224,181,82,.3))}
+.hero .x2{font-family:Inter;font-size:.42em;font-weight:800;letter-spacing:0;padding:.18em .45em;border-radius:.4em;background:var(--now);color:#fff;-webkit-text-fill-color:#fff;box-shadow:0 0 18px rgba(196,69,43,.55);transform:rotate(-6deg)}
+.hero .sub{font-family:Cinzel,serif;font-weight:600;font-size:clamp(16px,2.6vw,24px);color:var(--text);margin-top:6px}
+.hero .sub b{color:var(--gold)}
+.hero .evt{color:var(--muted);font-size:12px;margin-top:8px}
 .spacer{flex:1}
 .status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--free);box-shadow:0 0 8px var(--free)}
@@ -33,23 +51,78 @@ button.on{background:var(--gold);color:#1a1307;border-color:var(--gold);font-wei
 .days button .today{font-size:10px;margin-left:6px;color:var(--now);font-weight:700}
 .days button.on .today{color:#5a1408}
 .tools{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
-input[type=search]{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 12px;font:inherit;min-width:240px}
-input[type=search]:focus{outline:none;border-color:var(--gold2)}
+/* busca em destaque */
+.search{position:relative;flex:1 1 320px;max-width:480px;display:flex;align-items:center}
+.search svg{position:absolute;left:13px;width:18px;height:18px;color:var(--gold);pointer-events:none}
+.search input{width:100%;min-width:0;background:rgba(224,181,82,.07);border:1px solid var(--gold2);color:var(--text);border-radius:10px;padding:10px 46px 10px 40px;font:inherit;font-size:14px;transition:border-color .15s,box-shadow .15s,background .15s}
+.search input::placeholder{color:#bfae8a}
+.search input:hover{border-color:var(--gold)}
+.search input:focus{outline:none;border-color:var(--gold);background:var(--card);box-shadow:0 0 0 3px rgba(224,181,82,.22)}
+.search kbd{position:absolute;right:10px;font:600 11px Inter,sans-serif;color:var(--muted);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;pointer-events:none}
+.search input:focus ~ kbd,.search input:not(:placeholder-shown) ~ kbd{display:none}
 select{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 10px;font:inherit}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
 .seg button{border:0;border-radius:0}
 main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
 .top,.days,.tools{max-width:1460px;margin-left:auto;margin-right:auto}
-.slots{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px}
-.slots button{white-space:nowrap;font-variant-numeric:tabular-nums;font-size:12px;position:relative}
-.slots button.now:not(.on){border-color:var(--now);color:#ffb3a3}
-.slots button .cnt{opacity:.6;margin-left:4px;font-size:11px}
+/* barra de horários (sticky abaixo do header) */
+#slotSentinel{height:1px;margin-bottom:-1px}
+.slotbar{position:sticky;top:var(--hdr-h,0px);z-index:15;display:flex;gap:6px;align-items:center;margin:0 -20px 14px;padding:8px 20px;background:rgba(15,13,10,.94);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid var(--line);transition:box-shadow .2s}
+.slotbar[hidden],.slotbar [hidden]{display:none}
+.slotbar.stuck{box-shadow:0 6px 12px rgba(0,0,0,.35)}
+.slots{--fw:28px;position:relative;flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:4px;-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%)}
+.slots::-webkit-scrollbar{display:none}
+.slots.drag{cursor:grabbing}
+.snav{flex:none;width:32px;height:46px;padding:0;border-radius:10px;font-size:18px;line-height:1;visibility:hidden}
+.slotbar.ovf .snav{visibility:visible}
+.snav:disabled{opacity:.3;cursor:default;border-color:var(--line)}
+.agora{flex:none;height:46px;border:1px solid var(--now);border-radius:10px;color:#ffb3a3;background:rgba(196,69,43,.12);font-weight:600;white-space:nowrap}
+.agora:hover{background:var(--now);color:#fff;border-color:var(--now)}
+.slots .chip{flex:none;position:relative;min-width:92px;height:46px;padding:6px 10px 8px;border-radius:10px;background:var(--card2);border:1px solid var(--line);font-variant-numeric:tabular-nums;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.15;white-space:nowrap;user-select:none;-webkit-user-select:none}
+.slots .chip .t{font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px}
+.slots .chip .cnt{font-size:11px;color:var(--muted)}
+.slots .chip::after{content:"";position:absolute;left:8px;right:8px;bottom:4px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold2) var(--p),rgba(255,255,255,.08) var(--p))}
+.slots .chip:hover:not(.on){border-color:var(--gold2);background:#2b2319}
+.slots .chip.now{box-shadow:inset 0 2px 0 var(--now)}
+.slots .chip.now .t::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--now);flex:none}
+.slots .chip.past:not(.on){opacity:.45}
+.slots .chip.past:not(.on):hover{opacity:.8}
+.slots .chip.empty .cnt{color:var(--free)}
+.slots .chip.empty::after{display:none}
+.slots .chip.on{background:var(--gold);color:#1a1307;border-color:var(--gold);font-weight:700}
+.slots .chip.on .t{font-weight:700}
+.slots .chip.on .cnt{color:#5a4210}
+.slots .chip.on::after{background:linear-gradient(90deg,rgba(26,19,7,.35) var(--p),rgba(26,19,7,.12) var(--p))}
+.slots .chip.full::after{background:var(--now)}
+.slots .chip.hit{border-color:var(--hl)}
+.slots .chip.hit::before{content:"";position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--hl);box-shadow:0 0 6px var(--hl)}
+.slots .chip:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+@media (max-width:600px){
+  .slotbar{margin:0 -20px 12px;padding:6px 12px}
+  .snav{display:none}
+  .slots{--fw:20px;scroll-snap-type:x proximity}
+  .slots .chip{scroll-snap-align:center;min-width:84px;height:48px}
+  .agora{width:44px;height:48px;padding:0}
+  .agora .lb{display:none}
+  header{position:static} /* no celular o header não gruda: sobra tela pros cards; só a barra de horários fica fixa */
+  .hero{padding:22px 16px 18px}
+  .hero .guild img{width:60px;height:60px}
+  .hero .kick{letter-spacing:2px}
+  .hero::before,.hero::after{display:none}
+  .search{flex-basis:100%;max-width:none}
+  .search kbd{display:none}
+}
 .group{margin-bottom:26px}
 .group h2{font-family:Cinzel,serif;color:var(--gold);font-size:17px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
 .group h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,transform .15s,opacity .15s}
 .card.free{opacity:.55}
+.card[data-k]{cursor:pointer}
+.card[data-k]:hover{border-color:var(--gold2);transform:translateY(-2px);opacity:1}
+.card[data-k]:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
+.card .more{margin-top:auto;font-size:11px;font-weight:600;color:var(--gold2);display:flex;align-items:center;gap:4px}
+.card[data-k]:hover .more{color:var(--gold)}
 .card.match{border-color:var(--hl);box-shadow:0 0 0 1px var(--hl),0 0 18px rgba(255,218,107,.15)}
 .card .name{font-weight:700;font-size:14px}
 .card .sub{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
@@ -73,17 +146,95 @@ mark{background:var(--hl);color:#1a1307;border-radius:3px;padding:0 2px}
 .modal .box{background:var(--card);border:1px solid var(--line);border-radius:14px;max-width:760px;max-height:85vh;overflow:auto;padding:20px 24px}
 .modal h3{font-family:Cinzel,serif;color:var(--gold);margin-top:0}
 .modal p{margin:6px 0;line-height:1.5}
+body.lock{overflow:hidden}
+.modal .box{scrollbar-width:thin;scrollbar-color:var(--gold2) transparent}
+.modal .box::-webkit-scrollbar{width:8px}
+.modal .box::-webkit-scrollbar-thumb{background:var(--gold2);border-radius:8px}
+.modal .box::-webkit-scrollbar-track{background:transparent}
+/* modal do respawn: todos os horários/dias de um respawn */
+.rbox{position:relative;width:min(720px,100%);padding:0 !important;display:flex;flex-direction:column}
+.rp-top{position:sticky;top:0;z-index:2;background:var(--card);border-bottom:1px solid var(--line);padding:18px 20px 12px;border-radius:14px 14px 0 0}
+.rp-head{display:flex;gap:14px;align-items:flex-start;padding-right:36px}
+.rp-head .mobs{flex:none;max-width:210px}
+.rp-head h3{margin:2px 0 4px;font-size:20px}
+.rp-head .sub{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+.rp-sum{font-size:12px;color:var(--muted)}
+.rp-sum b{color:var(--text)}
+.rp-x{position:absolute;top:12px;right:12px;width:34px;height:34px;padding:0;border-radius:50%;font-size:20px;line-height:1;z-index:3}
+.rp-days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:14px;padding:2px}
+.rp-days::-webkit-scrollbar{display:none}
+.rp-days button{flex:none;position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 12px 9px;border-radius:10px;font-size:12px;line-height:1.2}
+.rp-days button .c{font-size:11px;color:var(--muted);font-weight:500}
+.rp-days button.on .c{color:#5a4210}
+.rp-days button::after{content:"";position:absolute;left:8px;right:8px;bottom:4px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--gold2) var(--p),rgba(255,255,255,.08) var(--p))}
+.rp-days button.on::after{background:linear-gradient(90deg,rgba(26,19,7,.4) var(--p),rgba(26,19,7,.12) var(--p))}
+.rp-days button .today{font-size:9px;color:var(--now);font-weight:700;margin-left:4px}
+.rp-days button.on .today{color:#5a1408}
+.rp-days button:disabled{opacity:.35;cursor:default}
+.rp-list{display:flex;flex-direction:column;gap:4px;padding:12px 20px 20px}
+.rr{display:grid;grid-template-columns:100px 1fr auto;gap:10px;align-items:center;text-align:left;width:100%;padding:9px 12px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid transparent;font-size:13px}
+.rr:hover{border-color:var(--gold2);background:#2b2319}
+.rr .t{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600}
+.rr .p{white-space:pre-wrap;word-break:break-word}
+.rr .p.empty{color:var(--free);font-style:italic}
+.rr .go{color:var(--gold2);font-size:11px;font-weight:600;opacity:0;white-space:nowrap}
+.rr:hover .go,.rr:focus-visible .go{opacity:1}
+.rr.now{border-color:var(--now);box-shadow:inset 3px 0 0 var(--now)}
+.rr.now .t{color:#ffb3a3}
+.rr.past{opacity:.5}
+.rr.sel{border-color:var(--gold);background:rgba(224,181,82,.1)}
+.rr.match{background:rgba(255,218,107,.14)}
+@media (max-width:600px){
+  #resp{padding:0;align-items:flex-end}
+  .rbox{max-height:92vh !important;border-radius:16px 16px 0 0 !important}
+  .rp-top{padding:16px 14px 10px}
+  .rp-head .mobs{max-width:110px}
+  .rp-head .mobs img,.rp-head .mobs .noimg{width:36px;height:36px}
+  .rp-list{padding:10px 12px 16px}
+  .rr{grid-template-columns:104px 1fr;padding:9px 10px;font-size:12.5px}
+  .rr .t{white-space:nowrap}
+  .rr .go{display:none}
+}
 .err-box{background:#3a1710;border:1px solid var(--now);padding:12px;border-radius:10px;margin-bottom:14px}
 footer{color:var(--muted);font-size:11px;text-align:center;padding:20px}
 footer a{color:var(--gold2)}
+/* barra de doação */
+body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
+.credit{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 16px;padding:11px 16px;background:linear-gradient(90deg,#2b1f0c 0%,#17120a 30%,#17120a 70%,#2b1f0c 100%);border-top:2px solid var(--gold);box-shadow:0 -8px 28px rgba(224,181,82,.16);font-size:14px;color:var(--text);text-align:center;line-height:1.4}
+.credit a{color:var(--gold);font-weight:700;text-decoration:none}
+.credit a:hover{color:var(--hl);text-decoration:underline}
+.credit .coin{font-size:26px;line-height:1;animation:bob 2.6s ease-in-out infinite;filter:drop-shadow(0 0 8px rgba(255,218,107,.5))}
+.credit .msg b{color:var(--hl)}
+.credit .by{font-size:12px;color:var(--muted)}
+.credit .cta{background:linear-gradient(180deg,#ffe28f,var(--gold));color:#1a1307;border:0;border-radius:999px;padding:9px 18px;font-weight:800;white-space:nowrap;animation:ping 2.8s infinite}
+.credit .cta:hover{background:linear-gradient(180deg,#fff0bf,var(--hl))}
+.credit .cta.ok{background:var(--free);color:#fff;animation:none}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-8deg)}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(255,218,107,.55)}70%{box-shadow:0 0 0 12px rgba(255,218,107,0)}100%{box-shadow:0 0 0 0 rgba(255,218,107,0)}}
+@media (prefers-reduced-motion:reduce){.credit .coin,.credit .cta{animation:none}}
+.credit .cta .l2,.credit .cta.ok .l1{display:none}
+.credit .cta.ok .l2{display:inline}
+@media (max-width:600px){
+  .credit{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;padding:8px 12px;font-size:12.5px;text-align:left;line-height:1.35}
+  .credit .coin{font-size:20px}
+  .credit .cta{padding:8px 12px;font-size:12.5px}
+  .credit .cta .xs{display:none}
+  .credit .by{grid-column:1/-1;text-align:center;font-size:11px}
+}
 </style>
 </head>
 <body>
+<section class="hero">
+  <a class="guild" href="https://www.tibia.com/community/?subtopic=guilds&amp;page=view&amp;GuildName=Radioactive" target="_blank" rel="noopener" title="Ver a guild Radioactive no tibia.com"><img src="https://static.tibia.com/images/guildlogos/Radioactive.gif" alt="Logo da guild Radioactive" width="72" height="72" referrerpolicy="no-referrer" onerror="this.parentNode.remove()"></a>
+  <div class="kick">⚔&nbsp;<a href="https://www.tibia.com/community/?subtopic=guilds&amp;page=view&amp;GuildName=Radioactive" target="_blank" rel="noopener">Guild <b>Radioactive</b></a>&nbsp;·&nbsp;Descubra&nbsp;⚔</div>
+  <h1>Double XP <span class="x2" aria-hidden="true">2×</span></h1>
+  <div class="sub">Respawns em <b>Descubra</b></div>
+  <div class="evt" id="evt">carregando planilha…</div>
+</section>
 <header>
   <div class="top">
-    <h1>Double XP — Respawns<small id="evt">carregando planilha…</small></h1>
-    <div class="spacer"></div>
     <div class="status"><span class="dot load" id="dot"></span><span id="upd">—</span></div>
+    <div class="spacer"></div>
     <button id="btnRefresh" title="Recarregar agora">↻ Atualizar</button>
     <button id="btnRules">📜 Regras</button>
     <a class="btn" id="lnkSheet" target="_blank" rel="noopener" style="text-decoration:none">Abrir planilha</a>
@@ -94,7 +245,11 @@ footer a{color:var(--gold2)}
       <button data-v="slot" class="on">Por horário</button>
       <button data-v="resp">Por respawn</button>
     </div>
-    <input type="search" id="q" placeholder="Buscar jogador ou respawn…">
+    <label class="search" title="Digite o nome do seu char (ou de um respawn) pra achar onde ele está">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4.2-4.2"/></svg>
+      <input type="search" id="q" placeholder="Busque seu char ou um respawn…" aria-label="Buscar jogador ou respawn" autocomplete="off">
+      <kbd aria-hidden="true">/</kbd>
+    </label>
     <select id="grp"><option value="">Todas as hunts</option></select>
     <label style="color:var(--muted);font-size:12px;display:flex;gap:6px;align-items:center"><input type="checkbox" id="onlyBusy"> só ocupados</label>
   </div>
@@ -102,13 +257,35 @@ footer a{color:var(--gold2)}
 
 <main>
   <div id="err"></div>
-  <div class="slots" id="slots"></div>
-  <div id="content"><div class="empty-state">Carregando…</div></div>
+  <div id="slotSentinel"></div>
+  <div class="slotbar" id="slotbar" hidden>
+    <button type="button" class="snav" id="sPrev" aria-label="Horários anteriores" title="Horários anteriores">‹</button>
+    <div class="slots" id="slots" role="tablist" aria-label="Horários do dia"></div>
+    <button type="button" class="snav" id="sNext" aria-label="Próximos horários" title="Próximos horários">›</button>
+    <button type="button" class="agora" id="btnNow" hidden><span aria-hidden="true">●</span><span class="lb"> Agora</span></button>
+  </div>
+  <div id="content" role="tabpanel"><div class="empty-state">Carregando…</div></div>
 </main>
 
 <div class="modal" id="rules"><div class="box"><h3>Regras</h3><div id="rulesBody">—</div><p style="margin-top:16px"><button onclick="closeRules()">Fechar</button></p></div></div>
 
 <footer>Dados lidos ao vivo da planilha do Google · atualiza a cada <span id="ivl"></span> min · gifs: <a href="https://tibia.fandom.com" target="_blank" rel="noopener">TibiaWiki</a></footer>
+
+<div class="modal" id="resp" role="dialog" aria-modal="true" aria-labelledby="rpName"><div class="box rbox" id="rpBox">
+  <div class="rp-top">
+    <button type="button" class="rp-x" id="rpClose" aria-label="Fechar" title="Fechar (Esc)">×</button>
+    <div class="rp-head"><div id="rpMobs"></div><div><div class="sub" id="rpGrp"></div><h3 id="rpName"></h3><div class="rp-sum" id="rpSum"></div></div></div>
+    <div class="rp-days" id="rpDays" role="tablist" aria-label="Dias"></div>
+  </div>
+  <div class="rp-list" id="rpList"></div>
+</div></div>
+
+<div class="credit" id="credit">
+  <span class="coin" aria-hidden="true">🪙</span>
+  <span class="msg">Curtiu? <b>Joga uns Tibia Coins pro <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></b> e ajuda a criar outras funcionalidades!</span>
+  <button type="button" class="cta" id="btnCopy" title="Copia o nome do char pra você transferir os TC"><span class="l1">🪙 Copiar nome<span class="xs"> pra doar</span></span><span class="l2">✓ Copiado!</span></button>
+  <span class="by">Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></span>
+</div>
 
 <script>
 /* ===================== CONFIG ===================== */
@@ -197,7 +374,7 @@ const GIF_PATH = {"Adult Goanna": "0/0f|20220507012242", "Afflicted Strider": "6
 const gif = n => { const f=n.replace(/ /g,'_')+'.gif'; if(GIF_PATH[n]){ const [p,cb,file]=GIF_PATH[n].split('|'); const f2=file||f; return `https://static.wikia.nocookie.net/tibia/images/${p}/${encodeURIComponent(f2)}/revision/latest?cb=${cb}&path-prefix=en`; } return 'https://tibia.fandom.com/wiki/Special:FilePath/'+encodeURIComponent(f); };
 const $ = id => document.getElementById(id);
 
-const state = { data:{}, day:null, view:'slot', slot:null, q:'', grp:'', onlyBusy:false, rules:null, userPickedSlot:false };
+const state = { data:{}, day:null, view:'slot', slot:null, q:'', grp:'', onlyBusy:false, rules:null, userPickedSlot:false, resp:null };
 try{ const s=JSON.parse(localStorage.getItem('dxp-ui')||'{}'); if(s.view) state.view=s.view; }catch(e){}
 
 /* ---------- carregamento (JSONP do gviz, funciona sem servidor) ---------- */
@@ -287,7 +464,20 @@ function gameNow(){ // retorna {dayNum, minutes} considerando server save
 }
 const tabDay = t => +((t.match(/\((\d+)\)/)||[])[1]||0);
 function todayTab(){ const n=gameNow().dayNum; return DAY_TABS.find(t=>tabDay(t)===n) || null; }
-function guessToday(){ return todayTab() || DAY_TABS[0]; }
+function guessToday(){ // hoje; senão o próximo dia do evento; senão o último
+  const t=todayTab(); if(t) return t; const n=gameNow().dayNum;
+  return DAY_TABS.find(x=>tabDay(x)>n) || DAY_TABS[DAY_TABS.length-1];
+}
+function nearestSlot(d){ // horário mais próximo do relógio agora (pela hora do dia, vale pra qualquer aba)
+  const [sh,sm] = SERVER_SAVE.split(':').map(Number), base = sh*60+sm, rel = x => (x - base + 1440) % 1440, n = rel(gameNow().mins);
+  let best = 0, bd = Infinity;
+  d.slots.forEach((s,i)=>{
+    const m = s.label.match(/(\d{1,2}):(\d{2}).*?(\d{1,2}):(\d{2})/); if(!m) return;
+    const a = rel(+m[1]*60+ +m[2]), b = rel(+m[3]*60+ +m[4]) || 1440, dist = n<a ? a-n : n>=b ? n-b+1 : 0;
+    if(dist<bd){ bd=dist; best=i; }
+  });
+  return best;
+}
 function slotIsNow(label, tab){
   if(tabDay(tab)!==gameNow().dayNum) return false;
   const m = label.match(/(\d{1,2}):(\d{2}).*?(\d{1,2}):(\d{2})/); if(!m) return false;
@@ -296,6 +486,15 @@ function slotIsNow(label, tab){
   const a = rel(+m[1]*60+ +m[2]), b = rel(+m[3]*60+ +m[4]) || 1440, n = rel(gameNow().mins);
   return n>=a && n<b;
 }
+function slotIsPast(label, tab){ // só hoje: horário já terminou
+  if(tabDay(tab)!==gameNow().dayNum) return false;
+  const m = label.match(/(\d{1,2}):(\d{2}).*?(\d{1,2}):(\d{2})/); if(!m) return false;
+  const [sh,sm] = SERVER_SAVE.split(':').map(Number), base = sh*60+sm;
+  const rel = x => (x - base + 1440) % 1440;
+  return (rel(+m[3]*60+ +m[4]) || 1440) <= rel(gameNow().mins);
+}
+const slotTimes = l => { const m=l.match(/(\d{1,2}:\d{2}).*?(\d{1,2}:\d{2})/); return m?[m[1],m[2]]:null; };
+const slotTxt = l => { const t=slotTimes(l); return t ? t.join('–') : l.replace(/\s*as\s*/i,'–'); };
 
 /* ---------- render ---------- */
 function renderHeaderInfo(){
@@ -323,11 +522,48 @@ function renderDays(){
   const today = todayTab();
   $('days').innerHTML = DAY_TABS.map(t=>`<button data-d="${esc(t)}" class="${t===state.day?'on':''}">${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</button>`).join('');
 }
-function render(){
+/* ---------- barra de horários ---------- */
+const beh = smooth => smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto';
+let lastCenter = null; // day|slot do último chip centralizado
+function centerChip(chip, smooth){ const sl=$('slots'); sl.scrollTo({left: chip.offsetLeft - (sl.clientWidth - chip.offsetWidth)/2, behavior: beh(smooth)}); }
+function updateEdges(){
+  const sl=$('slots'), bar=$('slotbar'), max=sl.scrollWidth-sl.clientWidth, l=sl.scrollLeft, ovf=max>1;
+  bar.classList.toggle('ovf', ovf);
+  sl.style.setProperty('--fl', ovf && l>1 ? 'var(--fw)' : '0px');
+  sl.style.setProperty('--fr', ovf && l<max-1 ? 'var(--fw)' : '0px');
+  $('sPrev').disabled = !ovf || l<=1; $('sNext').disabled = !ovf || l>=max-1;
+}
+function renderSlots(d, nowIdx, q, smooth){
+  const bar=$('slotbar'), sl=$('slots'), wasHidden=bar.hidden, total=d.cols.length;
+  const hadFocus = sl.contains(document.activeElement), left = sl.scrollLeft;
+  bar.hidden = false;
+  sl.innerHTML = d.slots.map((s,i)=>{
+    const busy = s.cells.filter(Boolean).length, p = total ? Math.round(busy/total*100) : 0, on = i===state.slot, now = i===nowIdx;
+    const hit = q && s.cells.some(c=>c && norm(c).includes(q)), past = slotIsPast(s.label,state.day), full = total && busy>=total;
+    const cls = ['chip', on&&'on', now&&'now', past&&'past', !busy&&'empty', full&&'full', hit&&'hit'].filter(Boolean).join(' ');
+    const occ = `${busy} de ${total} respawns ocupados`, tm = slotTimes(s.label);
+    const aria = (tm ? `${tm[0]} às ${tm[1]}` : s.label) + ', ' + occ + (now?', horário atual':'') + (past?', já passou':'') + (hit?', tem resultado da busca':'');
+    return `<button type="button" class="${cls}" data-s="${i}" role="tab" aria-selected="${on}" aria-controls="content" tabindex="${on?0:-1}" title="${occ}" aria-label="${esc(aria)}" style="--p:${p}%"><span class="t">${esc(slotTxt(s.label))}</span><span class="cnt">${!busy?'livre':full?'lotado':busy+'/'+total}</span></button>`;
+  }).join('');
+  sl.scrollLeft = left; // preserva a rolagem entre re-renders
+  const chip = sl.children[state.slot], key = state.day+'|'+state.slot;
+  if(chip && hadFocus) chip.focus({preventScroll:true});
+  if(chip && (key!==lastCenter || wasHidden)) centerChip(chip, smooth && !wasHidden && lastCenter!=null);
+  lastCenter = key;
+  updateEdges();
+}
+function updateNowBtn(){ // "Agora": aparece quando não está no horário atual de hoje
+  const b=$('btnNow'), tt=todayTab(), td=tt&&state.data[tt];
+  const ti = td && !td.error ? td.slots.findIndex(s=>slotIsNow(s.label,tt)) : -1;
+  b.hidden = !(ti>=0 && (state.day!==tt || state.slot!==ti));
+  if(ti>=0){ const lbl='Voltar para o horário atual ('+slotTxt(td.slots[ti].label)+')'; b.title=lbl; b.setAttribute('aria-label',lbl); }
+}
+function render(smooth){
   renderDays();
   document.querySelectorAll('#viewSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===state.view));
   const d = state.data[state.day];
-  if(!d || d.error){ $('slots').innerHTML=''; $('content').innerHTML=`<div class="empty-state">${d&&d.error?'Erro ao ler a aba: '+esc(d.error):'Sem dados para esta aba.'}</div>`; return; }
+  if(state.view==='slot') $('content').setAttribute('role','tabpanel'); else $('content').removeAttribute('role');
+  if(!d || d.error){ $('slotbar').hidden=true; $('content').innerHTML=`<div class="empty-state">${d&&d.error?'Erro ao ler a aba: '+esc(d.error):'Sem dados para esta aba.'}</div>`; return; }
 
   // filtro de hunts
   const groups = [...new Set(d.cols.map(c=>c.grp))];
@@ -340,12 +576,8 @@ function render(){
 
   if(state.view==='slot'){
     const nowIdx = d.slots.findIndex(s=>slotIsNow(s.label,state.day));
-    if(state.slot==null || state.slot>=d.slots.length || (!state.userPickedSlot && nowIdx>=0)) state.slot = nowIdx>=0?nowIdx:0;
-    $('slots').innerHTML = d.slots.map((s,i)=>{
-      const busy = s.cells.filter(Boolean).length;
-      const hit = q && s.cells.some((c,j)=>c && norm(c).includes(q));
-      return `<button data-s="${i}" class="${i===state.slot?'on':''} ${i===nowIdx?'now':''}" style="${hit&&i!==state.slot?'border-color:var(--hl)':''}">${i===nowIdx?'● ':''}${esc(s.label.replace(/\s*as\s*/i,'–'))}<span class="cnt">${busy}</span></button>`;
-    }).join('');
+    if(state.slot==null || state.slot>=d.slots.length || !state.userPickedSlot) state.slot = nowIdx>=0 ? nowIdx : nearestSlot(d);
+    renderSlots(d, nowIdx, q, smooth); updateNowBtn();
     const s = d.slots[state.slot];
     let html='';
     for(const g of groups){
@@ -355,15 +587,16 @@ function render(){
         .filter(x=>!q || matchCell(x.txt,x.c));
       if(!cards.length) continue;
       html += `<section class="group"><h2>${esc(g)}</h2><div class="grid">` + cards.map(({c,txt})=>`
-        <div class="card ${txt?'':'free'} ${q&&matchCell(txt,c)?'match':''}">
+        <div class="card ${txt?'':'free'} ${q&&matchCell(txt,c)?'match':''}" ${cardAttrs(c)}>
           ${mobsHtml(c.key)}
           <div><div class="sub">${esc(c.grp)}</div><div class="name">${hl(c.name)}</div></div>
           <div class="who ${txt?'':'empty'}">${txt?hl(txt):'livre'}</div>
+          <div class="more">Ver todos os horários e dias ›</div>
         </div>`).join('') + `</div></section>`;
     }
     $('content').innerHTML = html || '<div class="empty-state">Nada encontrado nesse horário.</div>';
   } else {
-    $('slots').innerHTML='';
+    $('slotbar').hidden=true;
     let html='';
     for(const g of groups){
       if(state.grp && g!==state.grp) continue;
@@ -377,19 +610,136 @@ function render(){
       html += `<section class="group"><h2>${esc(g)}</h2><div class="grid">` + cols.map(({c,j})=>{
         const rows = d.slots.map(s=>({s,txt:s.cells[j]})).filter(x=>!state.onlyBusy||x.txt);
         const used = d.slots.filter(s=>s.cells[j]).length;
-        return `<div class="card">
+        return `<div class="card" ${cardAttrs(c)}>
           ${mobsHtml(c.key)}
           <div><div class="sub">${esc(c.grp)} · ${used}/${d.slots.length} horários</div><div class="name">${hl(c.name)}</div></div>
           <div class="list">${rows.map(({s,txt})=>`<div class="row ${slotIsNow(s.label,state.day)?'now':''} ${q&&txt&&norm(txt).includes(q)?'match':''}"><span class="t">${esc(s.label.replace(/\s*as\s*/i,'–'))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span></div>`).join('')}</div>
+          <div class="more">Ver outros dias ›</div>
         </div>`;}).join('') + `</div></section>`;
     }
     $('content').innerHTML = html || '<div class="empty-state">Nada encontrado.</div>';
   }
+  renderResp();
+}
+
+/* ---------- modal do respawn (todos os horários/dias) ---------- */
+const cardAttrs = c => `data-k="${esc(c.key)}" role="button" tabindex="0" aria-haspopup="dialog" aria-label="${esc(c.name)}: ver todos os horários e dias"`;
+function respCol(tab, key){ const d=state.data[tab]; if(!d||d.error) return null; const j=d.cols.findIndex(c=>c.key===key); return j<0 ? null : {d, j, c:d.cols[j]}; }
+function renderResp(scrollTo){
+  const r = state.resp; if(!r) return;
+  const all = DAY_TABS.map(t=>[t,respCol(t,r.key)]).filter(x=>x[1]);
+  if(!all.length){ closeResp(); return; }
+  if(!respCol(r.day,r.key)) r.day = all[0][0];
+  const x = respCol(r.day,r.key), today = todayTab(), q = norm(state.q);
+  $('rpMobs').innerHTML = mobsHtml(r.key);
+  $('rpGrp').textContent = x.c.grp; $('rpName').textContent = x.c.name;
+  const usedAll = all.reduce((n,[,y])=>n+y.d.slots.filter(s=>s.cells[y.j]).length,0), freeDay = x.d.slots.filter(s=>!s.cells[x.j]).length;
+  $('rpSum').innerHTML = `<b>${freeDay}</b> horário${freeDay===1?'':'s'} livre${freeDay===1?'':'s'} em ${esc(r.day)} · <b>${usedAll}</b> reservas no evento`;
+  $('rpDays').innerHTML = DAY_TABS.map(t=>{
+    const y = respCol(t,r.key); if(!y) return `<button type="button" disabled title="Sem esse respawn na aba">${esc(t)}<span class="c">—</span></button>`;
+    const used = y.d.slots.filter(s=>s.cells[y.j]).length, tot = y.d.slots.length, on = t===r.day;
+    return `<button type="button" role="tab" aria-selected="${on}" class="${on?'on':''}" data-d="${esc(t)}" style="--p:${tot?Math.round(used/tot*100):0}%" title="${used} de ${tot} horários ocupados"><span>${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</span><span class="c">${used}/${tot}</span></button>`;
+  }).join('');
+  $('rpList').innerHTML = x.d.slots.map((s,i)=>{
+    const txt = s.cells[x.j], now = slotIsNow(s.label,r.day), sel = r.day===state.day && i===state.slot && state.view==='slot';
+    const cls = ['rr', now&&'now', slotIsPast(s.label,r.day)&&'past', sel&&'sel', q&&txt&&norm(txt).includes(q)&&'match'].filter(Boolean).join(' ');
+    return `<button type="button" class="${cls}" data-s="${i}" title="Ver este horário na grade"><span class="t">${now?'● ':''}${esc(slotTxt(s.label))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span><span class="go">ver na grade ›</span></button>`;
+  }).join('');
+  if(scrollTo){ // centraliza o horário atual (ou o selecionado / o mais próximo) na lista
+    const box = $('rpBox'), row = $('rpList').querySelector('.rr.now') || $('rpList').querySelector('.rr.sel') || $('rpList').children[nearestSlot(x.d)];
+    const topH = box.querySelector('.rp-top').offsetHeight; // cabeçalho sticky cobre o topo da caixa
+    box.scrollTop = row ? Math.max(0, row.offsetTop + row.offsetHeight/2 - (topH + box.clientHeight)/2) : 0;
+  }
+}
+let respOpener = null;
+function openResp(key){
+  respOpener = document.activeElement;
+  state.resp = {key, day: state.day};
+  $('resp').classList.add('open'); document.body.classList.add('lock');
+  renderResp(true); $('rpClose').focus({preventScroll:true});
+}
+function closeResp(){
+  if(!state.resp) return; state.resp = null;
+  $('resp').classList.remove('open'); document.body.classList.remove('lock');
+  if(respOpener && document.contains(respOpener)) respOpener.focus({preventScroll:true});
 }
 
 /* ---------- eventos ---------- */
 $('days').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.day=b.dataset.d; state.slot=null; state.userPickedSlot=false; render(); };
-$('slots').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.slot=+b.dataset.s; state.userPickedSlot=true; render(); };
+const SL = $('slots');
+let dragged = false, drag = null, edgeRaf = 0;
+const pickSlot = i => { state.slot=i; state.userPickedSlot=true; render(true); };
+SL.onclick = e=>{ if(dragged){ dragged=false; return; } const b=e.target.closest('.chip'); if(b) pickSlot(+b.dataset.s); };
+SL.addEventListener('keydown', e=>{ // ←/→ Home/End com roving tabindex
+  const b=e.target.closest('.chip'); if(!b) return;
+  const n=SL.children.length, i=+b.dataset.s, k={ArrowLeft:i-1,ArrowRight:i+1,Home:0,End:n-1}[e.key];
+  if(k==null) return; e.preventDefault();
+  if(k>=0 && k<n && k!==state.slot) pickSlot(k);
+});
+SL.addEventListener('wheel', e=>{ // roda vertical rola a barra; nas pontas deixa a página rolar
+  if(Math.abs(e.deltaY)<=Math.abs(e.deltaX)) return;
+  const dy = e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?SL.clientWidth:1), max=SL.scrollWidth-SL.clientWidth;
+  if((dy>0 && SL.scrollLeft<max-1) || (dy<0 && SL.scrollLeft>0.5)){ e.preventDefault(); SL.scrollLeft+=dy; }
+}, {passive:false});
+// arrastar com o mouse (limiar de 5px; engole o clique seguinte)
+SL.addEventListener('pointerdown', e=>{ dragged=false; if(e.pointerType==='mouse' && e.button===0) drag={x:e.clientX, l:SL.scrollLeft, id:e.pointerId}; });
+SL.addEventListener('pointermove', e=>{
+  if(!drag) return; const dx=e.clientX-drag.x;
+  if(!dragged && Math.abs(dx)>5){ dragged=true; SL.classList.add('drag'); try{ SL.setPointerCapture(drag.id); }catch(_){} }
+  if(dragged) SL.scrollLeft = drag.l-dx;
+});
+const endDrag = ()=>{ drag=null; SL.classList.remove('drag'); };
+SL.addEventListener('pointerup', endDrag); SL.addEventListener('pointercancel', endDrag);
+SL.addEventListener('scroll', ()=>{ if(!edgeRaf) edgeRaf=requestAnimationFrame(()=>{ edgeRaf=0; updateEdges(); }); }, {passive:true});
+if(window.ResizeObserver) new ResizeObserver(()=>updateEdges()).observe(SL); else addEventListener('resize', updateEdges);
+$('sPrev').onclick = ()=>SL.scrollBy({left:-SL.clientWidth*.8, behavior:beh(true)});
+$('sNext').onclick = ()=>SL.scrollBy({left: SL.clientWidth*.8, behavior:beh(true)});
+$('btnNow').onclick = ()=>{
+  const f = document.activeElement===$('btnNow');
+  state.day=todayTab(); state.slot=null; state.userPickedSlot=false; render(true);
+  if(f){ const c=SL.querySelector('.chip.on'); if(c) c.focus({preventScroll:true}); } // botão some: foco vai pro chip atual
+};
+// sticky: --hdr-h acompanha a altura do header; sombra quando a barra "gruda"
+let stuckIO = null, hdrH = -1;
+function syncHdr(){ // no celular o header é static (CSS) → barra gruda no topo
+  const hd = document.querySelector('header'), h = getComputedStyle(hd).position==='sticky' ? Math.ceil(hd.offsetHeight) : 0;
+  if(h===hdrH) return; hdrH = h;
+  document.documentElement.style.setProperty('--hdr-h', h+'px');
+  if(!window.IntersectionObserver) return;
+  if(stuckIO) stuckIO.disconnect();
+  stuckIO = new IntersectionObserver(([en])=>$('slotbar').classList.toggle('stuck', !en.isIntersecting && en.boundingClientRect.top < h), {rootMargin:`-${h}px 0px 0px 0px`});
+  stuckIO.observe($('slotSentinel'));
+}
+syncHdr();
+if(window.ResizeObserver) new ResizeObserver(syncHdr).observe(document.querySelector('header'));
+addEventListener('resize', syncHdr);
+// modal do respawn
+$('content').addEventListener('click', e=>{ const c=e.target.closest('.card[data-k]'); if(c) openResp(c.dataset.k); });
+$('content').addEventListener('keydown', e=>{ if(e.key!=='Enter' && e.key!==' ') return; const c=e.target.closest('.card[data-k]'); if(c && e.target===c){ e.preventDefault(); openResp(c.dataset.k); } });
+$('rpClose').onclick = closeResp;
+$('resp').onclick = e=>{ if(e.target.id==='resp') closeResp(); };
+$('rpDays').onclick = e=>{ const b=e.target.closest('button[data-d]'); if(!b||!state.resp) return; state.resp.day=b.dataset.d; renderResp(true); };
+$('rpList').onclick = e=>{ // pula pra esse dia/horário na grade
+  const b=e.target.closest('.rr'); if(!b||!state.resp) return;
+  state.day=state.resp.day; state.slot=+b.dataset.s; state.userPickedSlot=true; state.view='slot';
+  closeResp(); render(true);
+  window.scrollTo({top: Math.max(0, $('slotSentinel').getBoundingClientRect().top + scrollY - Math.max(hdrH,0) - 4), behavior:beh(true)});
+};
+// atalhos: Esc fecha modais, "/" foca a busca
+addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ if(state.resp) closeResp(); else closeRules(); return; }
+  const tag=(e.target.tagName||'').toLowerCase();
+  if(e.key==='/' && !e.ctrlKey && !e.metaKey && !e.altKey && !['input','textarea','select'].includes(tag) && !state.resp){ e.preventDefault(); $('q').focus(); $('q').select(); }
+});
+// barra de doação: espaço no fim da página = altura real da barra; botão copia o nome do char
+const CREDIT = $('credit'), syncCredit = ()=>{ document.body.style.paddingBottom = (CREDIT.offsetHeight+12)+'px'; };
+syncCredit(); if(window.ResizeObserver) new ResizeObserver(syncCredit).observe(CREDIT); else addEventListener('resize', syncCredit);
+$('btnCopy').onclick = async ()=>{
+  const b=$('btnCopy'), name='Ozob Tank';
+  try{ await navigator.clipboard.writeText(name); }
+  catch(_){ const t=document.createElement('textarea'); t.value=name; t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); }catch(__){} t.remove(); }
+  b.classList.add('ok'); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove('ok'), 2400);
+};
 $('viewSeg').onclick = e=>{ const b=e.target.closest('button'); if(!b) return; state.view=b.dataset.v; try{localStorage.setItem('dxp-ui',JSON.stringify({view:state.view}))}catch(_){} render(); };
 $('q').oninput = e=>{ state.q=e.target.value.trim(); render(); };
 $('grp').onchange = e=>{ state.grp=e.target.value; render(); };
@@ -403,7 +753,7 @@ $('ivl').textContent = REFRESH_MIN;
 
 refresh();
 setInterval(refresh, REFRESH_MIN*60*1000);
-setInterval(()=>{ if(!state.userPickedSlot) render(); }, 60*1000); // acompanha o horário atual
+setInterval(()=>render(), 60*1000); // acompanha o horário atual (render preserva rolagem/foco; atualiza agora/passou e o botão "Agora")
 </script>
 </body>
 </html>
