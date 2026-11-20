@@ -611,6 +611,7 @@ function goToHit(t, i, key){ // pula pra aquele dia/horário e destaca o card do
     card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
   }
 }
+const reservas = n => n + (n===1 ? ' reserva' : ' reservas');
 /* ---------- barra de horários ---------- */
 const beh = smooth => smooth && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'auto';
 let lastCenter = null; // day|slot do último chip centralizado
@@ -630,9 +631,9 @@ function renderSlots(d, nowIdx, q, smooth){
     const busy = s.cells.filter(Boolean).length, p = total ? Math.round(busy/total*100) : 0, on = i===state.slot, now = i===nowIdx;
     const hit = q && s.cells.some(c=>c && norm(c).includes(q)), past = slotIsPast(s.label,state.day), full = total && busy>=total;
     const cls = ['chip', on&&'on', now&&'now', past&&'past', !busy&&'empty', full&&'full', hit&&'hit'].filter(Boolean).join(' ');
-    const occ = `${busy} de ${total} respawns ocupados`, tm = slotTimes(s.label);
+    const occ = `${busy} de ${total} respawns reservados`, tm = slotTimes(s.label);
     const aria = (tm ? `${tm[0]} às ${tm[1]}` : s.label) + ', ' + occ + (now?', horário atual':'') + (past?', já passou':'') + (hit?', tem resultado da busca':'');
-    return `<button type="button" class="${cls}" data-s="${i}" role="tab" aria-selected="${on}" aria-controls="content" tabindex="${on?0:-1}" title="${occ}" aria-label="${esc(aria)}" style="--p:${p}%"><span class="t">${esc(slotTxt(s.label))}</span><span class="cnt">${!busy?'livre':full?'lotado':busy+'/'+total}</span></button>`;
+    return `<button type="button" class="${cls}" data-s="${i}" role="tab" aria-selected="${on}" aria-controls="content" tabindex="${on?0:-1}" title="${occ}" aria-label="${esc(aria)}" style="--p:${p}%"><span class="t">${esc(slotTxt(s.label))}</span><span class="cnt">${!busy?'livre':full?'lotado':reservas(busy)}</span></button>`;
   }).join('');
   sl.scrollLeft = left; // preserva a rolagem entre re-renders
   const chip = sl.children[state.slot], key = state.day+'|'+state.slot;
@@ -702,7 +703,7 @@ function render(smooth){
         const used = d.slots.filter(s=>s.cells[j]).length;
         return `<div class="card" ${cardAttrs(c)}>
           ${mobsHtml(c.key)}
-          <div><div class="sub">${esc(c.grp)} · ${used}/${d.slots.length} horários</div><div class="name">${hl(c.name)}</div></div>
+          <div><div class="sub">${esc(c.grp)} · ${used?reservas(used):'livre o dia todo'}</div><div class="name">${hl(c.name)}</div></div>
           <div class="list">${rows.map(({s,txt})=>`<div class="row ${slotIsNow(s.label,state.day)?'now':''} ${q&&txt&&norm(txt).includes(q)?'match':''}"><span class="t">${esc(s.label.replace(/\s*as\s*/i,'–'))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span></div>`).join('')}</div>
           <div class="more">Ver outros dias ›</div>
         </div>`;}).join('') + `</div></section>`;
@@ -728,7 +729,7 @@ function renderResp(scrollTo){
   $('rpDays').innerHTML = DAY_TABS.map(t=>{
     const y = respCol(t,r.key); if(!y) return `<button type="button" disabled title="Sem esse respawn na aba">${esc(t)}<span class="c">—</span></button>`;
     const used = y.d.slots.filter(s=>s.cells[y.j]).length, tot = y.d.slots.length, on = t===r.day;
-    return `<button type="button" role="tab" aria-selected="${on}" class="${on?'on':''}" data-d="${esc(t)}" style="--p:${tot?Math.round(used/tot*100):0}%" title="${used} de ${tot} horários ocupados"><span>${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</span><span class="c">${used}/${tot}</span></button>`;
+    return `<button type="button" role="tab" aria-selected="${on}" class="${on?'on':''}" data-d="${esc(t)}" style="--p:${tot?Math.round(used/tot*100):0}%" title="${used} de ${tot} horários reservados"><span>${esc(t)}${t===today?'<span class="today">HOJE</span>':''}</span><span class="c">${used?reservas(used):'livre'}</span></button>`;
   }).join('');
   $('rpList').innerHTML = x.d.slots.map((s,i)=>{
     const txt = s.cells[x.j], now = slotIsNow(s.label,r.day), sel = r.day===state.day && i===state.slot && state.view==='slot';
