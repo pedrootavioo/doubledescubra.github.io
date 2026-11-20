@@ -198,6 +198,19 @@ main{padding:18px 20px 60px;max-width:1500px;margin:0 auto}
 .mobs .noimg{width:48px;height:48px;border-radius:6px;background:rgba(255,255,255,.04);display:grid;place-items:center;color:var(--muted);font-size:20px}
 .who{background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;white-space:pre-wrap;line-height:1.4;word-break:break-word}
 .who.empty{color:var(--free);font-style:italic}
+/* nome do char = botão de copiar */
+.nm{display:inline-flex;align-items:center;gap:5px;margin:1px 0;padding:2px 6px 2px 7px;border-radius:6px;border:1px solid rgba(224,181,82,.22);background:rgba(224,181,82,.08);color:inherit;font:inherit;font-weight:600;line-height:1.35;text-align:left;cursor:copy;vertical-align:baseline;white-space:normal;word-break:break-word;transition:border-color .15s,background .15s}
+.nm svg{flex:none;width:12px;height:12px;color:var(--gold2);opacity:.75}
+.nm:hover{border-color:var(--gold);background:rgba(224,181,82,.16)}
+.nm:hover svg{opacity:1;color:var(--gold)}
+.nm:focus-visible{outline:2px solid var(--hl);outline-offset:1px}
+.nm.ok{border-color:var(--free);background:rgba(93,138,74,.25)}
+.nm.ok svg{color:#9be86a;opacity:1}
+.toast{position:fixed;left:0;right:0;margin:0 auto;width:max-content;bottom:calc(var(--credit-h,70px) + 14px);z-index:60;transform:translateY(12px);max-width:calc(100% - 32px);padding:10px 16px;border-radius:12px;background:#1f2a17;border:1px solid var(--free);color:var(--text);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;text-align:center}
+.toast b{color:#b9f08e}
+.toast.show{opacity:1;transform:none}
+body.kb .toast{bottom:16px}
+@media (max-width:600px){ .nm{padding:5px 8px;margin:2px 0} .nm svg{width:14px;height:14px} }
 .list{display:flex;flex-direction:column;gap:3px;font-size:12px}
 .row{display:grid;grid-template-columns:92px 1fr;gap:8px;padding:4px 6px;border-radius:6px}
 .row:nth-child(odd){background:rgba(0,0,0,.18)}
@@ -257,7 +270,9 @@ html.lock,body.lock{overflow:hidden}
 .rp-days button:disabled{opacity:.35;cursor:default}
 .rp-list{display:flex;flex-direction:column;gap:4px;padding:12px 20px 20px}
 .rr{display:grid;grid-template-columns:100px 1fr auto;gap:10px;align-items:center;text-align:left;width:100%;padding:9px 12px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid transparent;font-size:13px}
+.rr{cursor:pointer}
 .rr:hover{border-color:var(--gold2);background:#2b2319}
+.rr:focus-visible{outline:2px solid var(--hl);outline-offset:2px}
 .rr .t{color:var(--muted);font-variant-numeric:tabular-nums;font-weight:600}
 .rr .p{white-space:pre-wrap;word-break:break-word}
 .rr .p.empty{color:var(--free);font-style:italic}
@@ -466,6 +481,7 @@ body{padding-bottom:84px} /* ajustado via JS pela altura real da barra */
   <button type="button" class="cta" id="btnCopy" title="Copia o nome do char pra você transferir os TC"><span class="l1"><span class="ci">🪙 </span>Copiar nome<span class="xs"> pra doar</span></span><span class="l2">✓ Copiado!</span></button>
   <span class="by"><span class="byt">Feito com ❤️ por <a href="https://www.tibia.com/community/?subtopic=characters&amp;name=Ozob+Tank" target="_blank" rel="noopener">Ozob Tank</a></span><button type="button" class="like" id="btnLike" hidden aria-pressed="false" title="Curtir o site"><span class="hrt" aria-hidden="true">♥</span><span id="likeN">…</span></button></span>
 </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 /* ===================== CONFIG ===================== */
@@ -693,6 +709,23 @@ function hl(text){
   const re = new RegExp('('+state.q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
   return esc(text).replace(re,'<mark>$1</mark>');
 }
+// célula da planilha -> texto original, com cada nome de char virando botão de copiar.
+// separadores vistos: vírgula, " - ", "/", " e ", quebra de linha; extras: 📌/🍇, prefixo "pt", andar ("Dheusa -1")
+const NAME_SEP = /(\s*\n\s*|\s*[,\/;+&]\s*|\s+-\s+|\s+e\s+)/i;
+const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+function whoHtml(txt){
+  if(!txt) return 'livre';
+  return txt.split(NAME_SEP).map((part,k)=>{
+    if(k%2) return esc(part); // separador
+    const m = part.match(/^([^\p{L}]*)([\s\S]*?)([^\p{L}]*)$/u); if(!m) return hl(part);
+    let [, pre, core, post] = m;
+    const p2 = core.match(/^(pt|party)\s+/i); if(p2){ pre += p2[0]; core = core.slice(p2[0].length); }
+    const s2 = core.match(/\s+-?\d+$/); if(s2){ post = s2[0] + post; core = core.slice(0, -s2[0].length); }
+    const name = core.replace(/[\s ]+/g,' ').trim();
+    if(name.length < 2) return hl(part);
+    return `${esc(pre)}<button type="button" class="nm" data-n="${esc(name)}" title="Copiar “${esc(name)}” pra mandar msg no jogo" aria-label="Copiar nome ${esc(name)}">${hl(core)}${COPY_SVG}</button>${esc(post)}`;
+  }).join('');
+}
 const strip = s => norm(s).replace(/\s*\(.*?\)\s*/g,' ').trim();
 const MOBS_STRIP = Object.fromEntries(Object.entries(MOBS).map(([k,v])=>[strip(k),v]));
 function mobsHtml(key){
@@ -835,7 +868,7 @@ function renderMain(smooth){
         <div class="card ${txt?'':'free'} ${q&&matchCell(txt,c)?'match':''}" ${cardAttrs(c)}>
           ${mobsHtml(c.key)}
           <div><div class="sub">${esc(c.grp)}</div><div class="name">${hl(c.name)}</div></div>
-          <div class="who ${txt?'':'empty'}">${txt?hl(txt):'livre'}</div>
+          <div class="who ${txt?'':'empty'}">${whoHtml(txt)}</div>
           <div class="more">Ver todos os horários e dias ›</div>
         </div>`).join('') + `</div></section>`;
     }
@@ -858,7 +891,7 @@ function renderMain(smooth){
         return `<div class="card" ${cardAttrs(c)}>
           ${mobsHtml(c.key)}
           <div><div class="sub">${esc(c.grp)} · ${used?reservas(used):'livre o dia todo'}</div><div class="name">${hl(c.name)}</div></div>
-          <div class="list">${rows.map(({s,txt})=>`<div class="row ${slotIsNow(s.label,state.day)?'now':''} ${q&&txt&&norm(txt).includes(q)?'match':''}"><span class="t">${esc(s.label.replace(/\s*as\s*/i,'–'))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span></div>`).join('')}</div>
+          <div class="list">${rows.map(({s,txt})=>`<div class="row ${slotIsNow(s.label,state.day)?'now':''} ${q&&txt&&norm(txt).includes(q)?'match':''}"><span class="t">${esc(s.label.replace(/\s*as\s*/i,'–'))}</span><span class="p ${txt?'':'empty'}">${whoHtml(txt)}</span></div>`).join('')}</div>
           <div class="more">Ver outros dias ›</div>
         </div>`;}).join('') + `</div></section>`;
     }
@@ -889,7 +922,7 @@ function renderResp(scrollTo){
   setHTML($('rpList'), x.d.slots.map((s,i)=>{
     const txt = s.cells[x.j], now = slotIsNow(s.label,r.day), sel = r.day===state.day && i===state.slot && state.view==='slot';
     const cls = ['rr', now&&'now', slotIsPast(s.label,r.day)&&'past', sel&&'sel', q&&txt&&norm(txt).includes(q)&&'match'].filter(Boolean).join(' ');
-    return `<button type="button" class="${cls}" data-s="${i}" title="Ver este horário na grade"><span class="t">${now?'● ':''}${esc(slotTxt(s.label))}</span><span class="p ${txt?'':'empty'}">${txt?hl(txt):'livre'}</span><span class="go">ver na grade ›</span></button>`;
+    return `<div class="${cls}" data-s="${i}" role="button" tabindex="0" title="Ver este horário na grade"><span class="t">${now?'● ':''}${esc(slotTxt(s.label))}</span><span class="p ${txt?'':'empty'}">${whoHtml(txt)}</span><span class="go">ver na grade ›</span></div>`;
   }).join(''));
   if(scrollTo){ // centraliza o horário atual (ou o selecionado / o mais próximo) na lista
     const box = $('rpBox'), list = $('rpList'), row = list.querySelector('.rr.now') || list.querySelector('.rr.sel') || list.children[nearestSlot(x.d)];
@@ -1025,7 +1058,9 @@ const respTouchEnd = e=>{
 };
 $('resp').addEventListener('touchend', respTouchEnd); $('resp').addEventListener('touchcancel', respTouchEnd);
 $('rpDays').onclick = e=>{ const b=e.target.closest('button[data-d]'); if(!b||!state.resp) return; state.resp.day=b.dataset.d; renderResp(true); };
+$('rpList').addEventListener('keydown', e=>{ if((e.key==='Enter'||e.key===' ') && e.target.classList.contains('rr')){ e.preventDefault(); e.target.click(); } });
 $('rpList').onclick = e=>{ // pula pra esse dia/horário na grade
+  if(e.target.closest('.nm')) return;
   const b=e.target.closest('.rr'); if(!b||!state.resp) return;
   state.day=state.resp.day; state.slot=+b.dataset.s; state.userPickedSlot=true; state.view='slot';
   closeModal('resp'); render(true); toContent(true);
@@ -1050,16 +1085,31 @@ addEventListener('keydown', e=>{
   if(e.key==='/' && !e.ctrlKey && !e.metaKey && !e.altKey && !['input','textarea','select'].includes(tag) && !openModals.length){ e.preventDefault(); focusSearch(); }
 });
 // barra de doação: espaço no fim da página = altura real da barra; botão copia o nome do char
-const CREDIT = $('credit'), syncCredit = ()=>{ document.body.style.paddingBottom = (CREDIT.offsetHeight+12)+'px'; };
+const CREDIT = $('credit'), syncCredit = ()=>{ document.body.style.paddingBottom = (CREDIT.offsetHeight+12)+'px'; document.documentElement.style.setProperty('--credit-h', CREDIT.offsetHeight+'px'); };
 // celular: teclado aberto (busca com foco) esconde a barra de doação
 ['q','mq'].forEach(id=>{ $(id).addEventListener('focus', ()=>document.body.classList.add('kb')); $(id).addEventListener('blur', ()=>document.body.classList.remove('kb')); });
 syncCredit(); if(window.ResizeObserver) new ResizeObserver(syncCredit).observe(CREDIT); else addEventListener('resize', syncCredit);
+async function copyText(str){
+  try{ await navigator.clipboard.writeText(str); return true; }
+  catch(_){ const t=document.createElement('textarea'); t.value=str; t.setAttribute('readonly',''); t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); let ok=false; try{ ok=document.execCommand('copy'); }catch(__){} t.remove(); return ok; }
+}
+function toast(html){
+  const el=$('toast'); el.innerHTML=html; el.classList.add('show');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('show'), 2600);
+}
 $('btnCopy').onclick = async ()=>{
-  const b=$('btnCopy'), name='Ozob Tank';
-  try{ await navigator.clipboard.writeText(name); }
-  catch(_){ const t=document.createElement('textarea'); t.value=name; t.style.position='fixed'; t.style.opacity='0'; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); }catch(__){} t.remove(); }
+  const b=$('btnCopy'); await copyText('Ozob Tank');
   b.classList.add('ok'); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove('ok'), 2400);
 };
+// copiar o nome de quem está no respawn (pílulas .nm); captura: não deixa abrir o modal/navegar
+document.addEventListener('click', async e=>{
+  const b=e.target.closest('.nm'); if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const name=b.dataset.n, ok=await copyText(name);
+  document.querySelectorAll('.nm.ok').forEach(x=>x.classList.remove('ok'));
+  if(ok){ b.classList.add('ok'); clearTimeout(b._t); b._t=setTimeout(()=>b.classList.remove('ok'), 1600); }
+  toast(ok ? `✓ <b>${esc(name)}</b> copiado — é só colar no chat do Tibia` : `Não consegui copiar <b>${esc(name)}</b> 😕`);
+}, true);
 // like: contador guardado numa planilha via Apps Script; 1 like por navegador (localStorage)
 const LIKE_KEY = 'dxp-liked';
 const likedHere = ()=>{ try{ return localStorage.getItem(LIKE_KEY)==='1'; }catch(_){ return false; } };
